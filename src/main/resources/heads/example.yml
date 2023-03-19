@@ -1,0 +1,43 @@
+settings: # settings is required!!
+  view-distance: 30 # 30 blocks view distance
+  view-permission: 'rh.view.example' # Permission for view the head. Put here 'none' to disable.
+  location: 'world(100,80,100)' # Head location
+  type: STAND
+  # Animation types:
+  # --------------------------------------------
+  # Rotate:
+  # optional data: direction (LEFT/RIGHT), speed (number)
+  # format: Rotate(direction=LEFT,speed=5)
+  # --------------------------------------------
+  # UpDown:
+  # optional data: value (double - jump value), jumps (number of jumps up and jumps down), smooth (boolean)
+  # format: UpDown(value=0.025,jumps=20,smooth=true)
+  # --------------------------------------------
+  animations:
+    'rotate':
+      type: Rotate
+      direction: LEFT
+      speed: 2.5
+    'updown':
+      type: UpDown
+      jump: 0.015
+      jumps: 20
+      smooth: true
+
+head:
+  material: STONE
+
+hologram: # OPTIONAL
+  offset: 1.25 # height offset
+  space: 0.25 # Space value between lines (0.25 by default)
+  lines: # name lines
+    - '&6ROTATINGHEADS &lᴾᴿᴼ'
+    - '&8&m                       '
+    - ''
+    - '&fHello &e%player%&f, this head'
+    - '&fis provided by exclusive decorational'
+    - '&fplugin called &eRotatingHeadsPRO&f!'
+    - ''
+
+actions: # OPTIONAL
+  - console-cmd(value=say RotatingHeadsPRO!)

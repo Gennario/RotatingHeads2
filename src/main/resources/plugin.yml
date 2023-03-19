@@ -1,0 +1,7 @@
+name: NewRotatingHeads
+author: Gennario
+version: 1.0
+main: cz.gennario.newrotatingheads.Main
+api-version: 1.13
+depend:
+  - ProtocolLib
