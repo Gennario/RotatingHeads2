@@ -4,17 +4,22 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.google.common.collect.Lists;
+import com.mojang.authlib.GameProfile;
+import com.sun.tools.jdi.Packet;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import sun.jvm.hotspot.utilities.IntArray;
 
 import java.util.*;
 
@@ -114,11 +119,39 @@ public final class PacketUtils {
     }
 
     public static PacketContainer destroyEntityPacket(int entityID) {
-        PacketContainer packet = new PacketContainer(PacketType.Play.Server.ENTITY_DESTROY);
-
-        packet.getIntegers().write(0, entityID);
+        List<Integer> entityIDList = new ArrayList<>();
+        entityIDList.add(entityID);
+        PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
+        packet.getIntLists().write(0, entityIDList);
 
         return packet;
     }
+
+    public static PacketContainer getHeadRotatePacket(int entityId, Location location) {
+        PacketContainer pc = protocolManager.createPacket(PacketType.Play.Server.ENTITY_HEAD_ROTATION);
+        pc.getModifier().writeDefaults();
+        pc.getIntegers().write(0, entityId);
+        pc.getBytes().write(0, (byte)getCompressedAngle(location.getYaw()));
+
+        return pc;
+    }
+
+    public static PacketContainer getHeadLookPacket(int entityId, Location location) {
+        PacketContainer pc = protocolManager.createPacket(PacketType.Play.Server.ENTITY_LOOK);
+        pc.getModifier().writeDefaults();
+        pc.getIntegers().write(0, entityId);
+        pc.getBytes()
+                .write(0, (byte)getCompressedAngle(location.getYaw()))
+                .write(1, (byte)getCompressedAngle(location.getPitch()));
+        pc.getBooleans().write(0, true);
+
+        return pc;
+    }
+
+    private static int getCompressedAngle(float value) {
+        return (int)(value * 256.0F / 360.0F);
+    }
+
+
 
 }

@@ -1,10 +1,8 @@
 package cz.gennario.newrotatingheads;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.Pair;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.comphenix.protocol.wrappers.*;
+import cz.gennario.newrotatingheads.heads.RotatingHead;
 import lombok.Getter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bukkit.Bukkit;
@@ -12,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.EulerAngle;
 
 import java.util.*;
 
@@ -24,6 +23,8 @@ public class PacketArmorStand {
     private String name;
     private Location coreLocation;
     private Location location;
+
+    private EulerAngle headRotation, bodyRotation, leftArmRotation, rightArmRotation, leftLegRotation, rightLegRotation;
 
     private List<Pair<EnumWrappers.ItemSlot, ItemStack>> equipment;
 
@@ -75,6 +76,13 @@ public class PacketArmorStand {
 
         PacketUtils.setMetadata(dataWatcher, 0, Byte.class, (byte) flags1);
 
+        PacketUtils.setMetadata(dataWatcher, 16, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(headRotation.getX()), (float)Math.toDegrees(headRotation.getY()), (float)Math.toDegrees(headRotation.getZ())));
+        PacketUtils.setMetadata(dataWatcher, 17, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(bodyRotation.getX()), (float)Math.toDegrees(bodyRotation.getY()), (float)Math.toDegrees(bodyRotation.getZ())));
+        PacketUtils.setMetadata(dataWatcher, 18, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(leftArmRotation.getX()), (float)Math.toDegrees(leftArmRotation.getY()), (float)Math.toDegrees(leftArmRotation.getZ())));
+        PacketUtils.setMetadata(dataWatcher, 19, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(rightArmRotation.getX()), (float)Math.toDegrees(rightArmRotation.getY()), (float)Math.toDegrees(rightArmRotation.getZ())));
+        PacketUtils.setMetadata(dataWatcher, 20, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(leftLegRotation.getX()), (float)Math.toDegrees(leftLegRotation.getY()), (float)Math.toDegrees(leftLegRotation.getZ())));
+        PacketUtils.setMetadata(dataWatcher, 21, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(rightLegRotation.getX()), (float)Math.toDegrees(rightLegRotation.getY()), (float)Math.toDegrees(rightLegRotation.getZ())));
+
         if(!Objects.equals(this.name, "")) {
             Optional<?> opt = Optional.of(WrappedChatComponent.fromChatMessage(this.name.replace("&", "§"))[0].getHandle());
             PacketUtils.setMetadata(dataWatcher, 2, WrappedDataWatcher.Registry.getChatComponentSerializer(true), opt);
@@ -99,7 +107,8 @@ public class PacketArmorStand {
     }
 
     public void delete(Player player) {
-        PacketUtils.destroyEntityPacket(entityId);
+        PacketContainer destroyPacket = PacketUtils.destroyEntityPacket(entityId);
+        PacketUtils.sendPacket(player, destroyPacket);
     }
 
     public void teleport(Player player, Location location) {
@@ -183,5 +192,35 @@ public class PacketArmorStand {
 
     public Location getLocation() {
         return location;
+    }
+
+    public PacketArmorStand setHeadRotation(EulerAngle headRotation) {
+        this.headRotation = headRotation;
+        return this;
+    }
+
+    public PacketArmorStand setBodyRotation(EulerAngle bodyRotation) {
+        this.bodyRotation = bodyRotation;
+        return this;
+    }
+
+    public PacketArmorStand setLeftArmRotation(EulerAngle leftArmRotation) {
+        this.leftArmRotation = leftArmRotation;
+        return this;
+    }
+
+    public PacketArmorStand setLeftLegRotation(EulerAngle leftLegRotation) {
+        this.leftLegRotation = leftLegRotation;
+        return this;
+    }
+
+    public PacketArmorStand setRightArmRotation(EulerAngle rightArmRotation) {
+        this.rightArmRotation = rightArmRotation;
+        return this;
+    }
+
+    public PacketArmorStand setRightLegRotation(EulerAngle rightLegRotation) {
+        this.rightLegRotation = rightLegRotation;
+        return this;
     }
 }

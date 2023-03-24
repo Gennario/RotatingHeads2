@@ -14,20 +14,38 @@ settings: # settings is required!!
   # format: UpDown(value=0.025,jumps=20,smooth=true)
   # --------------------------------------------
   animations:
-    'rotate':
-      type: Rotate
+    rotate:
       direction: LEFT
       speed: 2.5
-    'updown':
-      type: UpDown
+    updown:
       jump: 0.015
       jumps: 20
       smooth: true
 
-head:
-  material: STONE
 
-hologram: # OPTIONAL
+# SLOT TYPES:
+# HEAD, CHEST, LEGS, FEET, MAINHAND, OFFHAND
+# OPTIONAL
+equipment:
+  # SLOT NAME
+  HEAD:
+    material: STONE
+
+# POSITION TYPES:
+# HEAD, BODY, LEFT_ARM, RIGHT_ARM, LEFT_LEG, RIGHT_LEG
+# OPTIONAL
+positions:
+  HEAD:
+    x: 0
+    y: 0
+    z: 0
+
+# OPTIONAL
+hologram:
+  # Source types:
+  # - PRIVATE - our hologram system
+  # - DECENTHOLOGRAM - Decent holograms plugin required
+  source: PRIVATE
   offset: 1.25 # height offset
   space: 0.25 # Space value between lines (0.25 by default)
   lines: # name lines
@@ -39,5 +57,6 @@ hologram: # OPTIONAL
     - '&fplugin called &eRotatingHeadsPRO&f!'
     - ''
 
-actions: # OPTIONAL
+# OPTIONAL
+actions:
   - console-cmd(value=say RotatingHeadsPRO!)
