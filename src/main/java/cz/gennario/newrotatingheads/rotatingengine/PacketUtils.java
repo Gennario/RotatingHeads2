@@ -40,7 +40,11 @@ public final class PacketUtils {
         packet.getIntegers().write(0, entityId);
 
         // Entity Type
-        packet.getEntityTypeModifier().write(0, entityType);
+        try {
+            packet.getEntityTypeModifier().write(0, entityType);
+        }catch (Exception e) {
+            packet.getIntegers().write(1, (int) entityType.getTypeId());
+        }
 
         // Set optional velocity (/8000)
         packet.getIntegers().write(1, 0);
@@ -52,8 +56,12 @@ public final class PacketUtils {
         packet.getDoubles().write(1, location.getY());
         packet.getDoubles().write(2, location.getZ());
 
-        packet.getBytes().write(0, (byte) location.getPitch());
-        packet.getBytes().write(1, (byte) location.getYaw());
+        try {
+            packet.getBytes().write(0, (byte) location.getPitch());
+            packet.getBytes().write(1, (byte) location.getYaw());
+        }catch (Exception e) {
+
+        }
 
         // Set UUID
         packet.getUUIDs().write(0, UUID.randomUUID());
