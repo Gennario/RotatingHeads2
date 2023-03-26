@@ -1,6 +1,6 @@
-name: NewRotatingHeads
+name: RotatingHeads2
 author: Gennario
-version: 1.0
+version: ALPHA-0.0.1
 main: cz.gennario.newrotatingheads.Main
 api-version: 1.13
 depend:

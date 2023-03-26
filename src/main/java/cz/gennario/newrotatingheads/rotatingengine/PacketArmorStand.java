@@ -1,18 +1,22 @@
-package cz.gennario.newrotatingheads;
+package cz.gennario.newrotatingheads.rotatingengine;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.*;
-import cz.gennario.newrotatingheads.heads.RotatingHead;
+import cz.gennario.newrotatingheads.utils.Utils;
+import cz.gennario.newrotatingheads.utils.items.ItemSystem;
+import cz.gennario.newrotatingheads.utils.replacement.Replacement;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Getter
 public class PacketArmorStand {
@@ -26,7 +30,7 @@ public class PacketArmorStand {
 
     private EulerAngle headRotation, bodyRotation, leftArmRotation, rightArmRotation, leftLegRotation, rightLegRotation;
 
-    private List<Pair<EnumWrappers.ItemSlot, ItemStack>> equipment;
+    private List<Pair<EnumWrappers.ItemSlot, Section>> equipment;
 
     public PacketArmorStand() {
         this.entityId = PacketUtils.generateRandomEntityId();
@@ -54,42 +58,48 @@ public class PacketArmorStand {
         WrappedDataWatcher dataWatcher = PacketUtils.getDataWatcher();
 
         byte flags = 0;
-        if(isSmall()) {
+        if (isSmall()) {
             flags += (byte) 0x01;
         }
-        if(isArms()) {
+        if (isArms()) {
             flags += (byte) 0x04;
         }
-        if(isNoBaseplate()) {
+        if (isNoBaseplate()) {
             flags += (byte) 0x08;
         }
-        Bukkit.broadcastMessage(""+flags);
         PacketUtils.setMetadata(dataWatcher, 15, Byte.class, (byte) flags);
 
         byte flags1 = 0;
-        if(isInvisible()) {
+        if (isInvisible()) {
             flags1 += (byte) 0x20;
         }
-        if(isGlowing()) {
+        if (isGlowing()) {
             flags1 += (byte) 0x40;
         }
 
         PacketUtils.setMetadata(dataWatcher, 0, Byte.class, (byte) flags1);
 
-        PacketUtils.setMetadata(dataWatcher, 16, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(headRotation.getX()), (float)Math.toDegrees(headRotation.getY()), (float)Math.toDegrees(headRotation.getZ())));
-        PacketUtils.setMetadata(dataWatcher, 17, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(bodyRotation.getX()), (float)Math.toDegrees(bodyRotation.getY()), (float)Math.toDegrees(bodyRotation.getZ())));
-        PacketUtils.setMetadata(dataWatcher, 18, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(leftArmRotation.getX()), (float)Math.toDegrees(leftArmRotation.getY()), (float)Math.toDegrees(leftArmRotation.getZ())));
-        PacketUtils.setMetadata(dataWatcher, 19, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(rightArmRotation.getX()), (float)Math.toDegrees(rightArmRotation.getY()), (float)Math.toDegrees(rightArmRotation.getZ())));
-        PacketUtils.setMetadata(dataWatcher, 20, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(leftLegRotation.getX()), (float)Math.toDegrees(leftLegRotation.getY()), (float)Math.toDegrees(leftLegRotation.getZ())));
-        PacketUtils.setMetadata(dataWatcher, 21, Vector3F.getMinecraftClass(), new Vector3F((float)Math.toDegrees(rightLegRotation.getX()), (float)Math.toDegrees(rightLegRotation.getY()), (float)Math.toDegrees(rightLegRotation.getZ())));
+        if (headRotation != null)
+            PacketUtils.setMetadata(dataWatcher, 16, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(headRotation.getX()), (float) Math.toDegrees(headRotation.getY()), (float) Math.toDegrees(headRotation.getZ())));
+        if (bodyRotation != null)
+            PacketUtils.setMetadata(dataWatcher, 17, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(bodyRotation.getX()), (float) Math.toDegrees(bodyRotation.getY()), (float) Math.toDegrees(bodyRotation.getZ())));
+        if (leftArmRotation != null)
+            PacketUtils.setMetadata(dataWatcher, 18, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftArmRotation.getX()), (float) Math.toDegrees(leftArmRotation.getY()), (float) Math.toDegrees(leftArmRotation.getZ())));
+        if (rightArmRotation != null)
+            PacketUtils.setMetadata(dataWatcher, 19, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightArmRotation.getX()), (float) Math.toDegrees(rightArmRotation.getY()), (float) Math.toDegrees(rightArmRotation.getZ())));
+        if (leftArmRotation != null)
+            PacketUtils.setMetadata(dataWatcher, 20, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftLegRotation.getX()), (float) Math.toDegrees(leftLegRotation.getY()), (float) Math.toDegrees(leftLegRotation.getZ())));
+        if (rightLegRotation != null)
+            PacketUtils.setMetadata(dataWatcher, 21, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightLegRotation.getX()), (float) Math.toDegrees(rightLegRotation.getY()), (float) Math.toDegrees(rightLegRotation.getZ())));
 
-        if(!Objects.equals(this.name, "")) {
-            Optional<?> opt = Optional.of(WrappedChatComponent.fromChatMessage(this.name.replace("&", "§"))[0].getHandle());
+        if (name != null) {
+            Optional<?> opt = Optional.of(WrappedChatComponent.fromChatMessage(Utils.colorize(player, this.name))[0].getHandle());
             PacketUtils.setMetadata(dataWatcher, 2, WrappedDataWatcher.Registry.getChatComponentSerializer(true), opt);
         }
         if (isShowName()) {
             PacketUtils.setMetadata(dataWatcher, 3, Boolean.class, isShowName());
         }
+
         if (isHasNoGravity()) {
             PacketUtils.setMetadata(dataWatcher, 5, Boolean.class, isHasNoGravity());
         }
@@ -100,8 +110,11 @@ public class PacketArmorStand {
         PacketContainer packet1 = PacketUtils.applyMetadata(entityId, dataWatcher);
         PacketUtils.sendPacket(player, packet1);
 
-        for (Pair<EnumWrappers.ItemSlot, ItemStack> itemSlotItemStackPair : equipment) {
-            PacketContainer packet2 = PacketUtils.getEquipmentPacket(entityId, itemSlotItemStackPair);
+        for (Pair<EnumWrappers.ItemSlot, Section> itemSlotItemStackPair : equipment) {
+            PacketContainer packet2 = PacketUtils.getEquipmentPacket(entityId, new Pair<>(
+                    itemSlotItemStackPair.getFirst(),
+                    ItemSystem.itemFromConfig(itemSlotItemStackPair.getSecond(), player, new Replacement(Utils::colorize))
+            ));
             PacketUtils.sendPacket(player, packet2);
         }
     }
@@ -119,17 +132,17 @@ public class PacketArmorStand {
     }
 
 
-    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, ItemStack>... equipment) {
+    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, Section>... equipment) {
         this.equipment.addAll(Arrays.asList(equipment));
         return this;
     }
 
-    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, ItemStack> equipment) {
+    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, Section> equipment) {
         this.equipment.add(equipment);
         return this;
     }
 
-    public PacketArmorStand setEquipment(List<Pair<EnumWrappers.ItemSlot, ItemStack>> equipment) {
+    public PacketArmorStand setEquipment(List<Pair<EnumWrappers.ItemSlot, Section>> equipment) {
         this.equipment = equipment;
         return this;
     }

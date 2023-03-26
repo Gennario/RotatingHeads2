@@ -1,0 +1,40 @@
+config-version: 1.1
+
+commands:
+  prefix: '<#f56c6c>· <G:c97b7b>RotatingHeads2</G:ff4a4a> &8| '
+  usage: '&fUse: <#ffa3a3>/%label% %help%'
+  no-perms: '<#ffa3a3>You don''t have enough permissions to do this!'
+  invalid-usage: '<#ffa3a3>Wrong insterted value at arg: &f%value%&c!'
+  disabled-console: '<#ffa3a3>This command is only for players!'
+  help:
+    header:
+      - '&r'
+      - '<center><#ffa3a3>- - - <G:c97b7b>&lRotatingHeads2</G:ff4a4a> <#ffa3a3>- - -'
+      - '<center>&7Help &8 | &7 Page: %page%/%max-page%'
+      - '<center>&7<> - Required &8 | &7 [] - Optional'
+      - '&r'
+    format: ' <#ffa3a3>· &f/%label% %cmd% &8| &7%usage%'
+    pagination:
+      space: ' &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r'
+      previouspage: '<#ff4a4a><<< Previous '
+      split: '&8|'
+      nextpage: '<#ff4a4a> Next >>>'
+    footer:
+      - '&r'
+
+messages:
+  reload: '&fPlugin successfully reloaded in <#ba6868>%time%ms&f.'
+  list:
+    header:
+      - '&r'
+      - '<center><#ffa3a3>- - - <G:c97b7b>&lRotatingHeads2</G:ff4a4a> <#ffa3a3>- - -'
+      - '&r'
+    format: ' <#ffa3a3>· &f%head% &8| &7%world% - %x%:%y%:%z%'
+    hover: '&fClick to teleport!'
+    footer:
+      - '&r'
+  teleport:
+    self: '&fTeleporting you to rotating head <#ffa3a3>%head%''s &flocation...'
+    other: '&fTeleporting player <#ffa3a3>%player% &fto rotating head <#ffa3a3>%head%''s &flocation...  &r%silent%'
+    silent: '&7&o(silent)'
+    other-player: '&f<#ffa3a3>%sender% &fhas teleported you to rotating head <#ffa3a3>%head%''s &flocation...'

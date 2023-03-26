@@ -1,34 +1,33 @@
 package cz.gennario.newrotatingheads;
 
-import com.comphenix.protocol.events.PacketContainer;
-import cz.gennario.newrotatingheads.heads.HeadRunnable;
-import cz.gennario.newrotatingheads.heads.RotatingHead;
-import cz.gennario.newrotatingheads.heads.animations.AnimationLoader;
-import cz.gennario.newrotatingheads.heads.animations.RotateAnimation;
-import cz.gennario.newrotatingheads.heads.animations.UpDownAnimation;
-import cz.gennario.newrotatingheads.utils.Utils;
+import cz.gennario.newrotatingheads.system.HeadInteraction;
+import cz.gennario.newrotatingheads.system.HeadRunnable;
+import cz.gennario.newrotatingheads.system.RotatingHead;
+import cz.gennario.newrotatingheads.system.animations.AnimationLoader;
+import cz.gennario.newrotatingheads.rotatingengine.actions.ActionsAPI;
+import cz.gennario.newrotatingheads.rotatingengine.conditions.ConditionsAPI;
+import cz.gennario.newrotatingheads.utils.PluginUpdater;
 import cz.gennario.newrotatingheads.utils.config.Config;
 import cz.gennario.newrotatingheads.utils.debug.Logger;
+import cz.gennario.newrotatingheads.utils.language.LanguageAPI;
 import lombok.Getter;
-import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.graalvm.compiler.hotspot.amd64.PluginFactory_AMD64X87MathIntrinsicNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
-public final class Main extends JavaPlugin implements Listener {
+public final class Main extends JavaPlugin {
 
     public static Main instance;
+    private PluginUpdater pluginUpdater;
+
+    private ConditionsAPI conditionsAPI;
+    private ActionsAPI actionsAPI;
 
     private Map<String, RotatingHead> heads;
     private AnimationLoader animationLoader;
@@ -36,10 +35,13 @@ public final class Main extends JavaPlugin implements Listener {
     private Logger log;
 
     private Config configFile;
+    private LanguageAPI languageAPI;
+    private Command command;
 
     @Override
     public void onEnable() {
         instance = this;
+        pluginUpdater = new PluginUpdater(0, this);
 
         heads = new HashMap<>();
         log = new Logger(Main.getInstance());
@@ -55,6 +57,37 @@ public final class Main extends JavaPlugin implements Listener {
         animationLoader = new AnimationLoader();
         animationLoader.loadDefaults();
 
+        actionsAPI = new ActionsAPI();
+        conditionsAPI = new ConditionsAPI();
+
+        /*
+         *  LANGUAGE LOADER
+         * */
+        loadLanguage();
+        command = new Command();
+
+        /*
+        *  HEADS LOADER
+        * */
+        File heads = createHeadsFolder();
+        loadHeads(heads);
+
+
+        new HeadInteraction().register();
+        new HeadRunnable().runTaskTimerAsynchronously(this, 1, 1);
+    }
+
+    @Override
+    public void onDisable() {
+    }
+
+    public void loadLanguage() {
+        languageAPI = new LanguageAPI(this);
+        languageAPI.addLanguage("en_GB");
+        languageAPI.setActiveLanguage(configFile.getYamlDocument().getString("language"), new ArrayList<>(languageAPI.getLanguages().values()).get(0).getName());
+    }
+
+    public File createHeadsFolder() {
         File heads = new File(getDataFolder()+"/heads/");
         if(!heads.exists()) {
             heads.mkdir();
@@ -64,7 +97,10 @@ public final class Main extends JavaPlugin implements Listener {
                 e.printStackTrace();
             }
         }
+        return heads;
+    }
 
+    public void loadHeads(File heads) {
         for (File file : heads.listFiles()) {
             String name = file.getName().replace(".yml", "");
 
@@ -74,70 +110,18 @@ public final class Main extends JavaPlugin implements Listener {
 
             this.heads.put(name, rotatingHead);
         }
-
-        getServer().getPluginManager().registerEvents(this, this);
-        new ArmorStandCreation().register();
-
-        new HeadRunnable().runTaskTimerAsynchronously(this, 1, 1);
     }
 
-    @Override
-    public void onDisable() {
-        for (RotatingHead head : heads.values()) {
-        }
+    public RotatingHead getHeadByName(String name) {
+        if(heads.containsKey(name)) return heads.get(name);
+        return null;
     }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
-        RotatingHead head = new RotatingHead(player.getLocation(), "sd", false);
-        head.addAnimation(new RotateAnimation("rotate", RotateAnimation.RotateDirection.LEFT, 0.5));
-        head.addAnimation(new UpDownAnimation("updown", 0.05, 20, 0, true));
-       /* {Head:[339f,0f,0f],
-            LeftLeg:[20f,19f,0f],
-            RightLeg:[20f,326f,0f],LeftArm:[38f,31f,0f],RightArm:[26f,332f,0f]}}*/
-        head.setArms(true);
-        head.setInvisible(false);
-        head.setLeftLegRotation(20, 19, 0)
-                .setRightLegRotation(20,326,0)
-                .setLeftArmRotation(38, 31, 0)
-                .setRightArmRotation(26, 332, 0);
-
-        head.updateHead();
-
-        Location clone = player.getLocation().clone();
-        clone.add(10,10,10);
-
-        int eid = PacketUtils.generateRandomEntityId();
-        PacketContainer packetContainer = PacketUtils.spawnEntityPacket(EntityType.ALLAY, clone, eid);
-        PacketUtils.sendPacket(player, packetContainer);
-        new BukkitRunnable() {
-            boolean b= true;
-            @Override
-            public void run() {
-                clone.setYaw(clone.getYaw()+3);
-
-                if (b) {
-                    clone.add(0, 0.1, 0);
-                    b = !b;
-                }else {
-                    clone.add(0, -0.1, 0);
-                    b = !b;
-                }
-
-                PacketContainer packetContainer1 = PacketUtils.getHeadLookPacket(eid, clone);
-                PacketContainer packetContainer2 = PacketUtils.getHeadRotatePacket(eid, clone);
-                PacketUtils.sendPacket(player, packetContainer2);
-                PacketUtils.sendPacket(player, packetContainer1);
-            }
-        }.runTaskTimerAsynchronously(this, 1,1);
-
-
-        heads.put("sd", head);
+    public List<RotatingHead> getHeadsList() {
+        return (List<RotatingHead>) heads.values();
     }
 
-    public static Main getInstance() {
+    public static Main getInstance()  {
         return instance;
     }
 

@@ -1,8 +1,8 @@
-package cz.gennario.newrotatingheads.heads.animations;
+package cz.gennario.newrotatingheads.system.animations.list;
 
-import cz.gennario.newrotatingheads.heads.RotatingHead;
+import cz.gennario.newrotatingheads.system.RotatingHead;
+import cz.gennario.newrotatingheads.system.animations.HeadAnimationExtender;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;

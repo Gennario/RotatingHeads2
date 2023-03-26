@@ -1,9 +1,7 @@
-package cz.gennario.newrotatingheads.heads.animations;
+package cz.gennario.newrotatingheads.system.animations;
 
-import com.comphenix.protocol.events.PacketContainer;
-import cz.gennario.newrotatingheads.PacketUtils;
-import cz.gennario.newrotatingheads.heads.RotatingHead;
-import org.apache.commons.lang3.RandomStringUtils;
+import cz.gennario.newrotatingheads.rotatingengine.PacketUtils;
+import cz.gennario.newrotatingheads.system.RotatingHead;
 import org.bukkit.Location;
 
 public abstract class HeadAnimationExtender {

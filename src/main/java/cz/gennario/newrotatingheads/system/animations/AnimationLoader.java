@@ -1,5 +1,7 @@
-package cz.gennario.newrotatingheads.heads.animations;
+package cz.gennario.newrotatingheads.system.animations;
 
+import cz.gennario.newrotatingheads.system.animations.list.RotateAnimation;
+import cz.gennario.newrotatingheads.system.animations.list.UpDownAnimation;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 
 import java.util.HashMap;

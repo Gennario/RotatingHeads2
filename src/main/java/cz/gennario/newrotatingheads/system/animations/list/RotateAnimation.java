@@ -1,9 +1,10 @@
-package cz.gennario.newrotatingheads.heads.animations;
+package cz.gennario.newrotatingheads.system.animations.list;
 
-import cz.gennario.newrotatingheads.heads.RotatingHead;
+import cz.gennario.newrotatingheads.system.RotatingHead;
+import cz.gennario.newrotatingheads.system.animations.HeadAnimationExtender;
 import org.bukkit.Location;
 
-public class RotateAnimation extends HeadAnimationExtender{
+public class RotateAnimation extends HeadAnimationExtender {
 
     public enum RotateDirection {
         LEFT,
