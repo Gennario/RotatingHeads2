@@ -7,10 +7,10 @@ import cz.gennario.newrotatingheads.utils.items.ItemSystem;
 import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
 import java.util.ArrayList;
@@ -50,72 +50,110 @@ public class PacketArmorStand {
 
 
     public void spawn(Player player) {
-        /* SPAWN */
-        PacketContainer packet = PacketUtils.spawnEntityPacket(EntityType.ARMOR_STAND, location, entityId);
-        PacketUtils.sendPacket(player, packet);
+        try {
+            /* SPAWN */
+            PacketContainer packet = PacketUtils.spawnEntityPacket(EntityType.ARMOR_STAND, location, entityId);
+            PacketUtils.sendPacket(player, packet);
 
-        /* DATA WATCHER - metadata set */
-        WrappedDataWatcher dataWatcher = PacketUtils.getDataWatcher();
+            /* DATA WATCHER - metadata set */
+            WrappedDataWatcher dataWatcher = PacketUtils.getDataWatcher();
 
-        byte flags = 0;
-        if (isSmall()) {
-            flags += (byte) 0x01;
-        }
-        if (isArms()) {
-            flags += (byte) 0x04;
-        }
-        if (isNoBaseplate()) {
-            flags += (byte) 0x08;
-        }
-        PacketUtils.setMetadata(dataWatcher, 15, Byte.class, (byte) flags);
+            byte flags = 0;
+            if (isSmall()) {
+                flags += (byte) 0x01;
+            }
+            if (isArms()) {
+                flags += (byte) 0x04;
+            }
+            if (isNoBaseplate()) {
+                flags += (byte) 0x08;
+            }
+            if (Utils.versionIsAfter(16)) {
+                PacketUtils.setMetadata(dataWatcher, 15, Byte.class, flags);
+            }else if(Utils.versionIsAfterOrEqual(15)) {
+                PacketUtils.setMetadata(dataWatcher, 14, Byte.class, flags);
+            } else {
+                PacketUtils.setMetadata(dataWatcher, 11, Byte.class, flags);
+            }
 
-        byte flags1 = 0;
-        if (isInvisible()) {
-            flags1 += (byte) 0x20;
-        }
-        if (isGlowing()) {
-            flags1 += (byte) 0x40;
-        }
+            byte flags1 = 0;
+            if (isInvisible()) {
+                flags1 += (byte) 0x20;
+            }
+            if (isGlowing()) {
+                flags1 += (byte) 0x40;
+            }
 
-        PacketUtils.setMetadata(dataWatcher, 0, Byte.class, (byte) flags1);
+            PacketUtils.setMetadata(dataWatcher, 0, Byte.class, flags1);
 
-        if (headRotation != null)
-            PacketUtils.setMetadata(dataWatcher, 16, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(headRotation.getX()), (float) Math.toDegrees(headRotation.getY()), (float) Math.toDegrees(headRotation.getZ())));
-        if (bodyRotation != null)
-            PacketUtils.setMetadata(dataWatcher, 17, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(bodyRotation.getX()), (float) Math.toDegrees(bodyRotation.getY()), (float) Math.toDegrees(bodyRotation.getZ())));
-        if (leftArmRotation != null)
-            PacketUtils.setMetadata(dataWatcher, 18, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftArmRotation.getX()), (float) Math.toDegrees(leftArmRotation.getY()), (float) Math.toDegrees(leftArmRotation.getZ())));
-        if (rightArmRotation != null)
-            PacketUtils.setMetadata(dataWatcher, 19, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightArmRotation.getX()), (float) Math.toDegrees(rightArmRotation.getY()), (float) Math.toDegrees(rightArmRotation.getZ())));
-        if (leftArmRotation != null)
-            PacketUtils.setMetadata(dataWatcher, 20, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftLegRotation.getX()), (float) Math.toDegrees(leftLegRotation.getY()), (float) Math.toDegrees(leftLegRotation.getZ())));
-        if (rightLegRotation != null)
-            PacketUtils.setMetadata(dataWatcher, 21, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightLegRotation.getX()), (float) Math.toDegrees(rightLegRotation.getY()), (float) Math.toDegrees(rightLegRotation.getZ())));
+            if (headRotation != null) {
+                int id = 16;
+                if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+                if (Utils.versionIsBeforeOrEqual(14)) id = 12;
+                PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(headRotation.getX()), (float) Math.toDegrees(headRotation.getY()), (float) Math.toDegrees(headRotation.getZ())));
+            }
+            if (bodyRotation != null) {
+                int id = 17;
+                if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+                if (Utils.versionIsBeforeOrEqual(14)) id = 13;
+                PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(bodyRotation.getX()), (float) Math.toDegrees(bodyRotation.getY()), (float) Math.toDegrees(bodyRotation.getZ())));
+            }
+            if (leftArmRotation != null) {
+                int id = 18;
+                if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+                if (Utils.versionIsBeforeOrEqual(14)) id = 14;
+                PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftArmRotation.getX()), (float) Math.toDegrees(leftArmRotation.getY()), (float) Math.toDegrees(leftArmRotation.getZ())));
+            }
+            if (rightArmRotation != null) {
+                int id = 19;
+                if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+                if (Utils.versionIsBeforeOrEqual(14)) id = 15;
+                PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightArmRotation.getX()), (float) Math.toDegrees(rightArmRotation.getY()), (float) Math.toDegrees(rightArmRotation.getZ())));
+            }
+            if (leftArmRotation != null) {
+                int id = 20;
+                if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+                if (Utils.versionIsBeforeOrEqual(14)) id = 16;
+                PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftLegRotation.getX()), (float) Math.toDegrees(leftLegRotation.getY()), (float) Math.toDegrees(leftLegRotation.getZ())));
+            }
+            if (rightLegRotation != null) {
+                int id = 21;
+                if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+                if (Utils.versionIsBeforeOrEqual(14)) id = 17;
+                PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightLegRotation.getX()), (float) Math.toDegrees(rightLegRotation.getY()), (float) Math.toDegrees(rightLegRotation.getZ())));
+            }
 
-        if (name != null) {
-            Optional<?> opt = Optional.of(WrappedChatComponent.fromChatMessage(Utils.colorize(player, this.name))[0].getHandle());
-            PacketUtils.setMetadata(dataWatcher, 2, WrappedDataWatcher.Registry.getChatComponentSerializer(true), opt);
-        }
-        if (isShowName()) {
-            PacketUtils.setMetadata(dataWatcher, 3, Boolean.class, isShowName());
-        }
+            if (name != null) {
+                Optional<?> opt = Optional.of(WrappedChatComponent.fromChatMessage(Utils.colorize(player, this.name))[0].getHandle());
+                try {
+                    PacketUtils.setMetadata(dataWatcher, 2, WrappedDataWatcher.Registry.getChatComponentSerializer(true), opt);
+                } catch (Exception e) {
+                    PacketUtils.setMetadata(dataWatcher, 2, String.class, this.name);
+                }
+            }
+            if (isShowName()) {
+                PacketUtils.setMetadata(dataWatcher, 3, Boolean.class, isShowName());
+            }
 
-        if (isHasNoGravity()) {
-            PacketUtils.setMetadata(dataWatcher, 5, Boolean.class, isHasNoGravity());
-        }
-        if (isSilent()) {
-            PacketUtils.setMetadata(dataWatcher, 4, Boolean.class, isSilent());
-        }
+            if (isHasNoGravity()) {
+                PacketUtils.setMetadata(dataWatcher, 5, Boolean.class, isHasNoGravity());
+            }
+            if (isSilent()) {
+                PacketUtils.setMetadata(dataWatcher, 4, Boolean.class, isSilent());
+            }
 
-        PacketContainer packet1 = PacketUtils.applyMetadata(entityId, dataWatcher);
-        PacketUtils.sendPacket(player, packet1);
+            PacketContainer packet1 = PacketUtils.applyMetadata(entityId, dataWatcher);
+            PacketUtils.sendPacket(player, packet1);
 
-        for (Pair<EnumWrappers.ItemSlot, Section> itemSlotItemStackPair : equipment) {
-            PacketContainer packet2 = PacketUtils.getEquipmentPacket(entityId, new Pair<>(
-                    itemSlotItemStackPair.getFirst(),
-                    ItemSystem.itemFromConfig(itemSlotItemStackPair.getSecond(), player, new Replacement(Utils::colorize))
-            ));
-            PacketUtils.sendPacket(player, packet2);
+            for (Pair<EnumWrappers.ItemSlot, Section> itemSlotItemStackPair : equipment) {
+                PacketContainer packet2 = PacketUtils.getEquipmentPacket(entityId, new Pair<>(
+                        itemSlotItemStackPair.getFirst(),
+                        ItemSystem.itemFromConfig(itemSlotItemStackPair.getSecond(), player, new Replacement(Utils::colorize))
+                ));
+                PacketUtils.sendPacket(player, packet2);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

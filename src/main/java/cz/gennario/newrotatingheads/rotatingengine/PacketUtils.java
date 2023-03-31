@@ -16,6 +16,7 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.function.IntFunction;
 
 public final class PacketUtils {
 
@@ -60,7 +61,6 @@ public final class PacketUtils {
             packet.getBytes().write(0, (byte) location.getPitch());
             packet.getBytes().write(1, (byte) location.getYaw());
         }catch (Exception e) {
-
         }
 
         // Set UUID
@@ -78,14 +78,14 @@ public final class PacketUtils {
             PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
             packet.getIntegers().write(0, entityId);
 
-            if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion("1.19.3"))) {
+            try {
                 final List<WrappedDataValue> wrappedDataValueList = Lists.newArrayList();
                 watcher.getWatchableObjects().stream().filter(Objects::nonNull).forEach(entry -> {
                     final WrappedDataWatcher.WrappedDataWatcherObject dataWatcherObject = entry.getWatcherObject();
                     wrappedDataValueList.add(new WrappedDataValue(dataWatcherObject.getIndex(), dataWatcherObject.getSerializer(), entry.getRawValue()));
                 });
                 packet.getDataValueCollectionModifier().write(0, wrappedDataValueList);
-            } else {
+            } catch (Exception e) {
                 packet.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
             }
             return packet;
@@ -147,10 +147,11 @@ public final class PacketUtils {
             List<Integer> entityIDList = new ArrayList<>();
             entityIDList.add(entityID);
             PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
+            packet.getModifier().writeDefaults();
             try {
                 packet.getIntLists().write(0, entityIDList);
             }catch (Exception e) {
-                packet.getModifier().write(0, entityIDList);
+                packet.getIntegerArrays().write(0, entityIDList.stream().mapToInt(i->i).toArray());
             }
 
             return packet;

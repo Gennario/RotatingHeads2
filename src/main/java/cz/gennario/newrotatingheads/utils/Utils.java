@@ -76,6 +76,27 @@ public final class Utils {
         return Integer.parseInt(Utils.getMinecraftVersion(Bukkit.getServer()).split("\\.")[1]) < 13;
     }
 
+    public static boolean versionIs(int version) {
+        return Integer.parseInt(Utils.getMinecraftVersion(Bukkit.getServer()).split("\\.")[1]) == version;
+    }
+
+    public static boolean versionIsAfter(int version) {
+        return Integer.parseInt(Utils.getMinecraftVersion(Bukkit.getServer()).split("\\.")[1]) > version;
+    }
+
+    public static boolean versionIsBefore(int version) {
+        return Integer.parseInt(Utils.getMinecraftVersion(Bukkit.getServer()).split("\\.")[1]) < version;
+    }
+
+    public static boolean versionIsBeforeOrEqual(int version) {
+        return Integer.parseInt(Utils.getMinecraftVersion(Bukkit.getServer()).split("\\.")[1]) <= version;
+    }
+
+    public static boolean versionIsAfterOrEqual(int version) {
+        return Integer.parseInt(Utils.getMinecraftVersion(Bukkit.getServer()).split("\\.")[1]) >= version;
+    }
+
+
     public static Location getLocation(String s) {
         String[] splitted = s.replace(")", "").split("\\(");
         if (splitted.length == 2) {
