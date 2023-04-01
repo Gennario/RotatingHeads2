@@ -21,7 +21,11 @@ public class HeadRunnable extends BukkitRunnable {
                             }
                         }
                     } else {
-                        if (player.getLocation().distance(value.getLastlocation()) > value.getViewDistance()) {
+                        boolean canSpawn = true;
+                        if(value.getViewPermission() != null && !value.getViewPermission().equals("none")) {
+                            canSpawn = player.hasPermission(value.getViewPermission());
+                        }
+                        if (player.getLocation().distance(value.getLastlocation()) > value.getViewDistance() || !canSpawn) {
                             value.despawn(player);
                         }
                     }

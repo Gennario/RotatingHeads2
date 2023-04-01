@@ -4,19 +4,19 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.function.IntFunction;
 
 public final class PacketUtils {
 
@@ -26,6 +26,7 @@ public final class PacketUtils {
         try {
             protocolManager.sendServerPacket(player, packet);
         } catch (Exception e) {
+            e.printStackTrace();
             sendPacket(player, packet);
         }
     }
@@ -44,13 +45,20 @@ public final class PacketUtils {
         try {
             packet.getEntityTypeModifier().write(0, entityType);
         }catch (Exception e) {
-            packet.getIntegers().write(1, (int) entityType.getTypeId());
+            // Entity Type
+            if(entityType.equals(EntityType.ARMOR_STAND)) {
+                packet.getIntegers().write(6, 78);
+            } else packet.getIntegers().write(6, (int) entityType.getTypeId());
+            // Set optional velocity (/8000)
+            packet.getIntegers().write(1, 0);
+            packet.getIntegers().write(2, 0);
+            packet.getIntegers().write(3, 0);
+            // Set yaw pitch
+            packet.getIntegers().write(4, 0);
+            packet.getIntegers().write(5, 0);
+            // Set object data
+            packet.getIntegers().write(7, 0);
         }
-
-        // Set optional velocity (/8000)
-        packet.getIntegers().write(1, 0);
-        packet.getIntegers().write(2, 0);
-        packet.getIntegers().write(3, 0);
 
         // Set location
         packet.getDoubles().write(0, location.getX());

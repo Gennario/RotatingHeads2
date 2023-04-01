@@ -1,8 +1,8 @@
 package cz.gennario.newrotatingheads.utils;
 
+import cz.gennario.newrotatingheads.Main;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.logging.Level;
 
 @Getter
 @Setter
@@ -41,32 +42,47 @@ public class PluginUpdater {
     public void sendLoadMessage() {
         PluginDescriptionFile description = plugin.getDescription();
         pluginVersion = description.getVersion();
-        System.out.println(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "                                                                          ");
-        System.out.println(ChatColor.WHITE + "Loading plugin " + ChatColor.GREEN + description.getName() + ChatColor.WHITE + " v." + ChatColor.GREEN + description.getVersion());
-        System.out.println(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "                                                                          ");
-        System.out.println("");
+        Main.getInstance().getLogger().log(Level.INFO, "--------------------------------------------------------------------------------------------");
+        Main.getInstance().getLogger().log(Level.INFO, "Loading plugin " + description.getName() + " v." + description.getVersion());
+        Main.getInstance().getLogger().log(Level.INFO, "--------------------------------------------------------------------------------------------");
+        Main.getInstance().getLogger().log(Level.INFO, "");
         for (String key : data.keySet()) {
-            System.out.println(ChatColor.WHITE + " " + key + ": " + ChatColor.GREEN + data.get(key));
+            Main.getInstance().getLogger().log(Level.INFO, " " + key + ": " + data.get(key));
         }
         for (String s : dataList) {
-            System.out.println(ChatColor.WHITE + s);
+            Main.getInstance().getLogger().log(Level.INFO, s);
         }
-        System.out.println("");
-        System.out.println(ChatColor.WHITE + "This plugin is running on " + ChatColor.GREEN + description.getVersion() + ChatColor.WHITE + "...");
+        Main.getInstance().getLogger().log(Level.INFO, "");
+        Main.getInstance().getLogger().log(Level.INFO, "This plugin is running on " + description.getVersion() + "...");
         if (sitesVersion != null)
-            System.out.println(ChatColor.WHITE + "Current plugin version on polymart is " + ChatColor.GREEN + sitesVersion + ChatColor.WHITE + "...");
+            Main.getInstance().getLogger().log(Level.INFO, "Current plugin version on polymart is " + sitesVersion + "...");
         if (sitesVersion != null) {
             if (Objects.equals(pluginVersion, sitesVersion)) {
-                System.out.println(ChatColor.DARK_GREEN + "So your plugin is on the latest version...");
+                Main.getInstance().getLogger().log(Level.INFO, "So your plugin is on the latest version...");
             } else {
-                System.out.println(ChatColor.DARK_GREEN + "So your plugin is outdated. Please update the plugin...");
+                Main.getInstance().getLogger().log(Level.INFO, "So your plugin is outdated. Please update the plugin...");
             }
         }
-        System.out.println("");
-        System.out.println(ChatColor.WHITE + " Plugin author: " + ChatColor.YELLOW + description.getAuthors());
-        System.out.println("");
-        System.out.println(ChatColor.WHITE + "Thanks for choosing " + ChatColor.GREEN + "Gennario's Development" + ChatColor.WHITE + "...");
-        System.out.println(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "                                                                          ");
+        Main.getInstance().getLogger().log(Level.INFO, "");
+        Main.getInstance().getLogger().log(Level.INFO, " Plugin author: " + description.getAuthors());
+        Main.getInstance().getLogger().log(Level.INFO, "");
+        Main.getInstance().getLogger().log(Level.INFO, "Thanks for choosing Gennario's Development...");
+        Main.getInstance().getLogger().log(Level.INFO, "--------------------------------------------------------------------------------------------");
+    }
+
+    public void sendErrorOnLoadMessage(String message) {
+        PluginDescriptionFile description = plugin.getDescription();
+        pluginVersion = description.getVersion();
+
+        Main.getInstance().getLogger().log(Level.WARNING, "--------------------------------------------------------------------------------------------");
+        Main.getInstance().getLogger().log(Level.WARNING, "Loading plugin " + description.getName() + " v." + description.getVersion());
+        Main.getInstance().getLogger().log(Level.WARNING, "--------------------------------------------------------------------------------------------");
+        Main.getInstance().getLogger().log(Level.WARNING, "");
+        Main.getInstance().getLogger().log(Level.WARNING, "An error occurred while loading the plugin: " + message);
+        Main.getInstance().getLogger().log(Level.WARNING, "Disabling plugin...");
+        Main.getInstance().getLogger().log(Level.WARNING, "");
+        Main.getInstance().getLogger().log(Level.WARNING, "Thanks for choosing " + "Gennario's Development" + "...");
+        Main.getInstance().getLogger().log(Level.WARNING, "--------------------------------------------------------------------------------------------");
     }
 
     public void checkVersions() throws IOException {

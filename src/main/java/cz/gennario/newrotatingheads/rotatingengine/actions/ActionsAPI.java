@@ -3,8 +3,6 @@ package cz.gennario.newrotatingheads.rotatingengine.actions;
 import com.cryptomorin.xseries.XSound;
 import com.cryptomorin.xseries.messages.ActionBar;
 import com.cryptomorin.xseries.messages.Titles;
-import com.cryptomorin.xseries.particles.ParticleDisplay;
-import com.cryptomorin.xseries.particles.XParticle;
 import cz.gennario.newrotatingheads.Main;
 import cz.gennario.newrotatingheads.utils.BungeeUtils;
 import cz.gennario.newrotatingheads.utils.Utils;
@@ -14,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,10 +40,20 @@ public class ActionsAPI {
         /* Console and player command */
         addAction("console-cmd", (player, identifier, data, replacement) -> {
             if (data.isExist("value")) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), replacement.replace(player, data.getString("value")));
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), replacement.replace(player, data.getString("value")));
+                    }
+                }.runTask(Main.getInstance());
             } else if (data.isExist("values")) {
                 for (String s : data.getListString("values")) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), replacement.replace(player, s));
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), replacement.replace(player, s));
+                        }
+                    }.runTask(Main.getInstance());
                 }
             } else {
                 System.out.println("Some console-cmd action are missing correct data");
@@ -67,10 +76,20 @@ public class ActionsAPI {
         /* Console and player command */
         addAction("broadcast", (player, identifier, data, replacement) -> {
             if (data.isExist("value")) {
-                Bukkit.broadcastMessage(Utils.colorize(player, replacement.replace(player, data.getString("value"))));
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Bukkit.broadcastMessage(Utils.colorize(player, replacement.replace(player, data.getString("value"))));
+                    }
+                }.runTask(Main.getInstance());
             } else if (data.isExist("values")) {
                 for (String s : data.getListString("values")) {
-                    Bukkit.broadcastMessage(Utils.colorize(player, replacement.replace(player, s)));
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Bukkit.broadcastMessage(Utils.colorize(player, replacement.replace(player, s)));
+                        }
+                    }.runTask(Main.getInstance());
                 }
             } else {
                 System.out.println("Some console-cmd action are missing correct data");
@@ -79,10 +98,20 @@ public class ActionsAPI {
 
         addAction("player-cmd", (player, identifier, data, replacement) -> {
             if (data.isExist("value")) {
-                player.chat("/" + replacement.replace(player, data.getString("value")));
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.chat("/" + replacement.replace(player, data.getString("value")));
+                    }
+                }.runTask(Main.getInstance());
             } else if (data.isExist("values")) {
                 for (String s : data.getListString("values")) {
-                    player.chat("/" + replacement.replace(player, s));
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            player.chat("/" + replacement.replace(player, s));
+                        }
+                    }.runTask(Main.getInstance());
                 }
             } else {
                 System.out.println("Some player-cmd action are missing correct data");
@@ -97,7 +126,7 @@ public class ActionsAPI {
         /* Actionbar action */
         addAction("actionbar", (player, identifier, data, replacement) -> {
             if (data.isExist("value")) {
-                ActionBar.sendActionBar(player, replacement.replace(player, data.getString("value")));
+                ActionBar.sendActionBar(player, Utils.colorize(player, replacement.replace(player, data.getString("value"))));
             } else {
                 System.out.println("Some actionbar action are missing correct data");
             }
@@ -105,7 +134,7 @@ public class ActionsAPI {
         addAction("actionbar-all", (player, identifier, data, replacement) -> {
             if (data.isExist("value")) {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    ActionBar.sendActionBar(onlinePlayer, replacement.replace(onlinePlayer, data.getString("value")));
+                    ActionBar.sendActionBar(onlinePlayer, Utils.colorize(player, replacement.replace(onlinePlayer, data.getString("value"))));
                 }
             } else {
                 System.out.println("Some actionbar-all action are missing correct data");
@@ -120,7 +149,7 @@ public class ActionsAPI {
                 int fadeIn = data.getInt("fade-in", 20);
                 int stay = data.getInt("stay", 60);
                 int fadeOut = data.getInt("fade-out", 20);
-                Titles.sendTitle(player, fadeIn, stay, fadeOut, title, subtitle);
+                Titles.sendTitle(player, fadeIn, stay, fadeOut, Utils.colorize(player, replacement.replace(player, title)), Utils.colorize(player, replacement.replace(player, subtitle)));
             } else {
                 System.out.println("Some title action are missing correct data");
             }
@@ -133,7 +162,7 @@ public class ActionsAPI {
                 int stay = data.getInt("stay", 60);
                 int fadeOut = data.getInt("fade-out", 20);
                 for (Player op : Bukkit.getOnlinePlayers()) {
-                    Titles.sendTitle(op, fadeIn, stay, fadeOut, title, subtitle);
+                    Titles.sendTitle(op, fadeIn, stay, fadeOut, Utils.colorize(player, replacement.replace(player, title)), Utils.colorize(player, replacement.replace(player, subtitle)));
                 }
             } else {
                 System.out.println("Some title action are missing correct data");
@@ -171,13 +200,23 @@ public class ActionsAPI {
         /* Gamemode action */
         addAction("gamemode", ((player, identifier, data, replacement1) -> {
             if (data.isExist("value")) {
-                player.setGameMode(GameMode.valueOf(replacement.replace(player, data.getString("value")).toUpperCase()));
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.setGameMode(GameMode.valueOf(replacement.replace(player, data.getString("value")).toUpperCase()));
+                    }
+                }.runTask(Main.getInstance());
             }
         }));
         addAction("gamemode-all", ((player, identifier, data, replacement1) -> {
             if (data.isExist("value")) {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.setGameMode(GameMode.valueOf(replacement.replace(onlinePlayer, data.getString("value")).toUpperCase()));
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            onlinePlayer.setGameMode(GameMode.valueOf(replacement.replace(onlinePlayer, data.getString("value")).toUpperCase()));
+                        }
+                    }.runTask(Main.getInstance());
                 }
             }
         }));

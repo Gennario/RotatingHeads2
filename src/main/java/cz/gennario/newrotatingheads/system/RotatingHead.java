@@ -3,6 +3,7 @@ package cz.gennario.newrotatingheads.system;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import cz.gennario.newrotatingheads.Main;
+import cz.gennario.newrotatingheads.developer.events.*;
 import cz.gennario.newrotatingheads.rotatingengine.PacketArmorStand;
 import cz.gennario.newrotatingheads.system.animations.AnimationData;
 import cz.gennario.newrotatingheads.system.animations.AnimationLoader;
@@ -15,6 +16,7 @@ import cz.gennario.newrotatingheads.utils.config.Config;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -70,6 +72,14 @@ public class RotatingHead {
         this.id = this.packetArmorStand.getEntityId();
         this.name = name;
         this.headStatus = HeadStatus.ENABLED;
+
+        HeadLoadEvent loadEvent = new HeadLoadEvent(this, name, id, location, false);
+        Bukkit.getPluginManager().callEvent(loadEvent);
+
+        if(loadEvent.isCancelled()) {
+            if(Main.getInstance().getHeads().containsKey(name)) Main.getInstance().getHeads().remove(name);
+            return;
+        }
 
         if (withConfig) {
             Config config = new Config(Main.getInstance(), "heads", name, false);
@@ -236,6 +246,13 @@ public class RotatingHead {
     }
 
     public void spawn(Player player) {
+        HeadPlayerSpawnEvent loadEvent = new HeadPlayerSpawnEvent(this, player, false);
+        Bukkit.getPluginManager().callEvent(loadEvent);
+
+        if(loadEvent.isCancelled()) {
+            return;
+        }
+
         if (!players.contains(player)) {
             switch (headType) {
                 case STAND:
@@ -253,6 +270,13 @@ public class RotatingHead {
     }
 
     public void deleteHead() {
+        HeadUnloadEvent loadEvent = new HeadUnloadEvent(this, false);
+        Bukkit.getPluginManager().callEvent(loadEvent);
+
+        if(loadEvent.isCancelled()) {
+            return;
+        }
+
         Main.getInstance().getHeads().remove(this);
         headStatus = HeadStatus.DISABLED;
         for (Player player : location.getWorld().getPlayers()) {
@@ -271,6 +295,13 @@ public class RotatingHead {
     }
 
     public void despawn(Player player) {
+        HeadPlayerDespawnEvent loadEvent = new HeadPlayerDespawnEvent(this, player, false);
+        Bukkit.getPluginManager().callEvent(loadEvent);
+
+        if(loadEvent.isCancelled()) {
+            return;
+        }
+
         if (players.contains(player)) {
             switch (headType) {
                 case STAND:
@@ -312,6 +343,13 @@ public class RotatingHead {
     }
 
     public void pingAnimations() {
+        HeadAnimationsPingEvent loadEvent = new HeadAnimationsPingEvent(this, false);
+        Bukkit.getPluginManager().callEvent(loadEvent);
+
+        if(loadEvent.isCancelled()) {
+            return;
+        }
+
         try {
             for (HeadAnimationExtender animation : animations) {
                 animation.rotate(this);

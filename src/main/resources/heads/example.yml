@@ -16,6 +16,8 @@ settings: # settings is required!!
   # UpDown:
   # optional data: value (double - jump value), jumps (number of jumps up and jumps down), smooth (boolean)
   # --------------------------------------------
+  arms: true
+  invisible: false
   animations:
     rotate:
       type: Rotate

@@ -89,7 +89,9 @@ public class PrivateHologramProvider extends HologramExtender {
     @Override
     public void spawn(Player player) {
         for (PacketArmorStand packetArmorStand : lines.values()) {
-            packetArmorStand.spawn(player);
+            if(!packetArmorStand.getName().equals("")) {
+                packetArmorStand.spawn(player);
+            }
         }
 
         players.add(player);
