@@ -16,10 +16,12 @@ import cz.gennario.newrotatingheads.utils.config.Config;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 
 import javax.annotation.Nullable;
@@ -63,6 +65,7 @@ public class RotatingHead {
     private PacketEntity packetEntity;
     private EntityType entityType;
     private List<Player> players;
+    private float yaw;
 
 
     public RotatingHead(@Nullable Location location, String name, boolean withConfig) {
@@ -72,9 +75,15 @@ public class RotatingHead {
         this.id = this.packetArmorStand.getEntityId();
         this.name = name;
         this.headStatus = HeadStatus.ENABLED;
+        this.yaw = 0f;
 
         HeadLoadEvent loadEvent = new HeadLoadEvent(this, name, id, location, false);
-        Bukkit.getPluginManager().callEvent(loadEvent);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.getPluginManager().callEvent(loadEvent);
+            }
+        }.runTask(Main.getInstance());
 
         if(loadEvent.isCancelled()) {
             if(Main.getInstance().getHeads().containsKey(name)) Main.getInstance().getHeads().remove(name);
@@ -125,6 +134,8 @@ public class RotatingHead {
             case STAND:
                 this.id = packetArmorStand.getEntityId();
 
+                lastlocation.setYaw(yaw);
+                packetArmorStand.setLocation(lastlocation);
                 packetArmorStand.setInvisible(invisible);
                 packetArmorStand.setShowName(false);
                 packetArmorStand.setSilent(true);
@@ -145,6 +156,8 @@ public class RotatingHead {
                 break;
             case ENTITY:
                 this.id = packetEntity.getEntityId();
+                lastlocation.setYaw(yaw);
+                packetEntity.setLocation(lastlocation);
                 packetEntity.setEntityType(entityType);
 
                 packetArmorStand.setInvisible(invisible);
@@ -164,6 +177,10 @@ public class RotatingHead {
         this.viewDistance = yamlDocument.getInt("settings.view-distance", 30);
         this.viewPermission = yamlDocument.getString("settings.view-permission", null);
         this.location = Utils.getLocation(yamlDocument.getString("settings.location"));
+        this.yaw = yamlDocument.getFloat("settings.yaw", 0f);
+        Bukkit.broadcastMessage(yaw+"");
+        location.setYaw(yaw);
+        this.lastlocation = location;
         this.headType = HeadType.valueOf(yamlDocument.getString("settings.type", "STAND"));
         this.entityType = EntityType.valueOf(yamlDocument.getString("settings.entity-type", "ZOMBIE").toUpperCase());
 
@@ -247,7 +264,12 @@ public class RotatingHead {
 
     public void spawn(Player player) {
         HeadPlayerSpawnEvent loadEvent = new HeadPlayerSpawnEvent(this, player, false);
-        Bukkit.getPluginManager().callEvent(loadEvent);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.getPluginManager().callEvent(loadEvent);
+            }
+        }.runTask(Main.getInstance());
 
         if(loadEvent.isCancelled()) {
             return;
@@ -271,13 +293,18 @@ public class RotatingHead {
 
     public void deleteHead() {
         HeadUnloadEvent loadEvent = new HeadUnloadEvent(this, false);
-        Bukkit.getPluginManager().callEvent(loadEvent);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.getPluginManager().callEvent(loadEvent);
+            }
+        }.runTask(Main.getInstance());
 
         if(loadEvent.isCancelled()) {
             return;
         }
 
-        Main.getInstance().getHeads().remove(this);
+        Main.getInstance().getHeads().remove(name);
         headStatus = HeadStatus.DISABLED;
         for (Player player : location.getWorld().getPlayers()) {
             switch (headType) {
@@ -296,7 +323,12 @@ public class RotatingHead {
 
     public void despawn(Player player) {
         HeadPlayerDespawnEvent loadEvent = new HeadPlayerDespawnEvent(this, player, false);
-        Bukkit.getPluginManager().callEvent(loadEvent);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.getPluginManager().callEvent(loadEvent);
+            }
+        }.runTask(Main.getInstance());
 
         if(loadEvent.isCancelled()) {
             return;
@@ -344,7 +376,12 @@ public class RotatingHead {
 
     public void pingAnimations() {
         HeadAnimationsPingEvent loadEvent = new HeadAnimationsPingEvent(this, false);
-        Bukkit.getPluginManager().callEvent(loadEvent);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.getPluginManager().callEvent(loadEvent);
+            }
+        }.runTask(Main.getInstance());
 
         if(loadEvent.isCancelled()) {
             return;

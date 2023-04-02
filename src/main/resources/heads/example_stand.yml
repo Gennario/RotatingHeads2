@@ -1,7 +1,11 @@
-settings: # settings is required!!
-  view-distance: 30 # 30 blocks view distance
-  view-permission: 'rh.view.example' # Permission for view the head. Put here 'none' to disable.
-  location: 'world(100,80,100)' # Head location
+# settings is required!!
+settings:
+  # 30 blocks view distance
+  view-distance: 30
+  # Permission for view the head. Put here 'none' to disable.
+  view-permission: rh.view.example
+  # Head location
+  location: world(110,100.0,110)
   # Head types:
   # --------------------------------------------
   # STAND
@@ -21,7 +25,7 @@ settings: # settings is required!!
   animations:
     rotate:
       type: Rotate
-      direction: LEFT
+      direction: RIGHT
       speed: 2.5
     updown:
       type: UpDown
@@ -76,18 +80,21 @@ positions:
 hologram:
   offset:
     x: 0.0
-    y: 2.5 # height offset
+    # height offset
+    y: 2.5
     z: 0.0
-  space: 0.25 # Space value between lines (0.25 by default)
+  # Space value between lines (0.25 by default)
+  space: 0.25
   attach-bottom: true
   update-location: true
-  lines: # name lines
-    - '&6ROTATINGHEADS &lᴾᴿᴼ'
+  # name lines
+  lines:
+    - '<#ab1620>RotatingHeads &l2'
     - '&8&m                       '
     - ''
-    - '&fHello &e%player%&f, this head'
+    - '&fHello &c%player%&f, this armorstand'
     - '&fis provided by exclusive decorational'
-    - '&fplugin called &eRotatingHeadsPRO&f!'
+    - '&fplugin called &cRotatingHeads 2&f!'
     - ''
 
 # OPTIONAL

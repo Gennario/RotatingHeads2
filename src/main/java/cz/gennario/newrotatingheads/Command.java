@@ -1,24 +1,30 @@
 package cz.gennario.newrotatingheads;
 
+import com.github.javafaker.Faker;
 import cz.gennario.newrotatingheads.system.RotatingHead;
 import cz.gennario.newrotatingheads.utils.TextComponentUtils;
 import cz.gennario.newrotatingheads.utils.Utils;
 import cz.gennario.newrotatingheads.utils.commands.CommandAPI;
 import cz.gennario.newrotatingheads.utils.commands.SubCommandArg;
+import cz.gennario.newrotatingheads.utils.config.Config;
 import cz.gennario.newrotatingheads.utils.language.LanguageAPI;
 import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+import javax.rmi.CORBA.Util;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 @Getter
 public class Command {
@@ -26,6 +32,8 @@ public class Command {
     private final YamlDocument document;
     private final CommandAPI command;
     private LanguageAPI language;
+
+    private Map<Player, String> headRemove = new HashMap<>();
 
     public Command() {
         document = Main.getInstance().getConfigFile().getYamlDocument();
@@ -48,6 +56,10 @@ public class Command {
         loadReloadCommand();
         loadListCommand();
         loadTeleportCommand();
+        loadCreateCommand();
+        loadDeleteCommand();
+        loadMovehereCommand();
+        loadConvertCommand();
 
         command.buildCommand();
     }
@@ -61,9 +73,10 @@ public class Command {
                 .setAllowConsoleSender(true)
                 .setResponse((commandSender, s, commandArgs) -> {
                     long start = System.currentTimeMillis();
-                    for (RotatingHead head : Main.getInstance().getHeads().values()) {
+                    for (RotatingHead head : Main.getInstance().getHeadsList()) {
                         head.deleteHead();
                     }
+                    Main.getInstance().getHeads().clear();
                     try {
                         Main.getInstance().getConfigFile().getYamlDocument().reload();
 
@@ -102,7 +115,7 @@ public class Command {
                             TextComponent textComponent = TextComponentUtils.create(Utils.colorize(player, language.getString("messages.list.format", player,
                                     new Replacement((player1, string) -> string.replace("%head%", headName).replace("%world%", clone.getWorld().getName()).replace("%x%", "" + clone.getX()).replace("%y%", "" + clone.getY()).replace("%z%", "" + clone.getZ())))));
                             TextComponentUtils textComponentUtils = new TextComponentUtils();
-                            textComponentUtils.setClick(textComponent, ClickEvent.Action.RUN_COMMAND, "/rh teleport " + headName+ " "+player.getName()+" --silent");
+                            textComponentUtils.setClick(textComponent, ClickEvent.Action.RUN_COMMAND, "/rh teleport " + headName + " " + player.getName() + " --silent");
                             textComponentUtils.setHover(textComponent, language.getColoredString("messages.list.hover", player));
                             TextComponentUtils.send(player, textComponent);
                         } else {
@@ -156,7 +169,7 @@ public class Command {
                         for (String s1 : message) {
                             commandSender.sendMessage(s1);
                         }
-                        if(!silent) {
+                        if (!silent) {
                             List<String> message1 = language.getMessage("messages.teleport.other-player", null, new Replacement((player, string) ->
                                     string.replace("%head%", head.getName()).replace("%sender%", commandSender.getName()).replace("%silent%", finalSString)));
                             for (String s1 : message1) {
@@ -173,5 +186,211 @@ public class Command {
                         }
                     }
                 });
+    }
+
+    public void loadCreateCommand() {
+        Faker faker = new Faker();
+        command.addCommand("create")
+                .setUsage("create <head> [--center]")
+                .setPermission("rh.create")
+                .setDescription("Creates new head")
+                .addArg("head", SubCommandArg.CommandArgType.REQUIRED, SubCommandArg.CommandArgValue.STRING, Arrays.asList(faker.app().name(), faker.app().name(), faker.app().name(), faker.app().name(), faker.app().name(), faker.app().name(), faker.app().name(), faker.app().name(), faker.app().name()))
+                .addArg("position", SubCommandArg.CommandArgType.OPTIONAL, SubCommandArg.CommandArgValue.STRING, Arrays.asList("--center"))
+                .setAllowConsoleSender(false)
+                .setResponse((commandSender, s, commandArgs) -> {
+
+                    String name = commandArgs[0].getAsString();
+
+                    if (Main.getInstance().getHeads().containsKey(name)) {
+                        String ideas = faker.app().name(); //faker.app().name();
+                        for (int i = 0; i < 2; i++) {
+                            ideas += ", " + faker.app().name(); //faker.app().name();
+                        }
+                        for (int i = 0; i < 2; i++) {
+                            ideas += ", " + name + RandomStringUtils.random(3, false, true); //faker.app().name();
+                        }
+                        String finalIdeas = ideas;
+                        commandSender.sendMessage(language.getMessage("messages.create.exist",
+                                null,
+                                new Replacement((player, string) -> string.replace("%name%", name).replace("%name_ideas%", finalIdeas))).toArray(new String[0]));
+                        return;
+                    }
+
+                    boolean center = false;
+                    if (commandArgs.length > 1) {
+                        center = commandArgs[1].getAsString().equalsIgnoreCase("--center");
+                    }
+
+                    Player player = (Player) commandSender;
+                    Location location = player.getLocation().clone();
+
+                    Config heads = new Config(Main.getInstance(), "heads", name, Main.getInstance().getResource("heads/creation.yml"));
+                    try {
+                        heads.load();
+                        if (!center) {
+                            heads.getYamlDocument().set("settings.location", Utils.locationToString(location));
+                        } else {
+                            heads.getYamlDocument().set("settings.location", Utils.locationToStringCenter(location));
+                            location = location.getBlock().getLocation();
+                            location.setX(location.getX()+0.5);
+                            location.setZ(location.getZ()+0.5);
+                        }
+
+                        heads.getYamlDocument().save();
+                        heads.getYamlDocument().reload();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    RotatingHead head = new RotatingHead(location, name, true);
+                    head.loadFromConfig();
+                    head.updateHead();
+                    Main.getInstance().getHeads().put(name, head);
+
+                    commandSender.sendMessage(language.getMessage("messages.create.created",
+                            null,
+                            new Replacement((playe, string) -> string.replace("%name%", name))).toArray(new String[0]));
+                });
+    }
+
+
+    public void loadDeleteCommand() {
+        command.addCommand("delete")
+                .setAliases("remove")
+                .setUsage("delete <head> [--force]")
+                .setPermission("rh.delete")
+                .setDescription("Deletes head")
+                .addArg("head", SubCommandArg.CommandArgType.REQUIRED, SubCommandArg.CommandArgValue.HEAD)
+                .addArg("priority", SubCommandArg.CommandArgType.OPTIONAL, SubCommandArg.CommandArgValue.STRING, Arrays.asList("--force"))
+                .setAllowConsoleSender(false)
+                .setResponse((commandSender, s, commandArgs) -> {
+                    Player player = (Player) commandSender;
+
+                    RotatingHead head = commandArgs[0].getAsHead();
+                    String name = head.getName();
+
+                    if(headRemove.containsKey(player)) {
+                        if(headRemove.get(player).equals(name)) {
+
+                            YamlDocument yamlDocument = head.getYamlDocument();
+                            if(yamlDocument != null) {
+                                File file = new File(Main.getInstance().getDataFolder()+"/heads/"+head.getName()+".yml");
+                                file.delete();
+                            }
+                            head.deleteHead();
+
+                            commandSender.sendMessage(language.getMessage("messages.delete.deleted",
+                                    null,
+                                    new Replacement((playe, string) -> string.replace("%name%", name))).toArray(new String[0]));
+
+                            headRemove.remove(player);
+                        }else {
+                            commandSender.sendMessage(language.getMessage("messages.delete.protection",
+                                    null,
+                                    new Replacement((playe, string) -> string.replace("%name%", name))).toArray(new String[0]));
+                            headRemove.put(player, name);
+                        }
+                    }else {
+                        commandSender.sendMessage(language.getMessage("messages.delete.protection",
+                                null,
+                                new Replacement((playe, string) -> string.replace("%name%", name))).toArray(new String[0]));
+                        headRemove.put(player, name);
+                    }
+                });
+    }
+
+
+    public void loadMovehereCommand() {
+        command.addCommand("movehere")
+                .setAliases("mh")
+                .setUsage("movehere <head> [--center]")
+                .setPermission("rh.movehere")
+                .setDescription("Move head to your location")
+                .addArg("head", SubCommandArg.CommandArgType.REQUIRED, SubCommandArg.CommandArgValue.HEAD)
+                .addArg("position", SubCommandArg.CommandArgType.OPTIONAL, SubCommandArg.CommandArgValue.STRING, Arrays.asList("--center"))
+                .setAllowConsoleSender(false)
+                .setResponse((commandSender, s, commandArgs) -> {
+                    RotatingHead head = commandArgs[0].getAsHead();
+                    boolean center = false;
+                    if (commandArgs.length > 1) {
+                        center = commandArgs[1].getAsString().equalsIgnoreCase("--center");
+                    }
+
+                    Player player = (Player) commandSender;
+                    Location location = player.getLocation().clone();
+
+                    YamlDocument heads = head.getYamlDocument();
+                    try {
+                        if (!center) {
+                            heads.set("settings.location", Utils.locationToString(location));
+                        } else {
+                            heads.set("settings.location", Utils.locationToStringCenter(location));
+                            location = location.getBlock().getLocation();
+                            location.setX(location.getX()+0.5);
+                            location.setZ(location.getZ()+0.5);
+                        }
+
+                        heads.save();
+                        heads.reload();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    head.deleteHead();
+                    Main.getInstance().loadHead(head.getName());
+                });
+    }
+
+    public void loadConvertCommand() {
+        command.addCommand("convert")
+                .setUsage("convert <plugin>")
+                .setPermission("rh.convert")
+                .setDescription("Transfer files from old RotatingHeads")
+                .addArg("plugin", SubCommandArg.CommandArgType.REQUIRED, SubCommandArg.CommandArgValue.STRING, Arrays.asList("RH-REBORN", "RH-PRO"))
+                .setAllowConsoleSender(true)
+                .setResponse((commandSender, s, commandArgs) -> {
+                    String plugin = commandArgs[0].getAsString();
+
+                    switch (plugin) {
+                        case "RH-REBORN":
+                            File file = new File(Main.getInstance().getDataFolder().toString().replace("/RotatingHeads2", "")+"/RotatingHeads");
+                            if(file.exists()) {
+
+                                File file1 = new File(file.getPath()+"/heads");
+                                List<File> files = new ArrayList<>();
+                                if(file1.exists()) {
+                                    listFiles(file1, files);
+                                }
+
+                                for (File file2 : files) {
+                                    try {
+                                        Files.copy(file2.toPath(), Paths.get(Main.getInstance().getDataFolder()+"/heads/"+file2.getName()), StandardCopyOption.REPLACE_EXISTING);
+                                        Utils.optiomizeConfiguration("/heads/"+file2.getName());
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+
+                                commandSender.sendMessage("transfered");
+                            }else {
+                                commandSender.sendMessage("not exist file");
+                            }
+                            break;
+                        case "RH-PRO":
+                            break;
+                        default:
+                            break;
+                    }
+                });
+    }
+
+    public void listFiles(File file, List<File> files) {
+        for (File listFile : file.listFiles()) {
+            if(listFile.isDirectory()) {
+                listFiles(listFile, files);
+            }else {
+                files.add(listFile);
+            }
+        }
     }
 }

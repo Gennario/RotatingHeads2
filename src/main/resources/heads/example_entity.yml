@@ -1,0 +1,64 @@
+# settings is required!!
+settings:
+  # 30 blocks view distance
+  view-distance: 30
+  # Permission for view the head. Put here 'none' to disable.
+  view-permission: rh.view.example.turtle
+  # Head location
+  location: world(100,100.0,100)
+  # Head types:
+  # --------------------------------------------
+  # STAND
+  # ENTITY (+ entity-type: TYPE)
+  # --------------------------------------------
+  type: ENTITY
+  # Recommended types: TURTLE, BEE, VEX, FROG, AXOLOTL, ALLAY, ENDER_DRAGON (speed: 1-3), VILLAGER, BOAT, MINECART, SLIME
+  entity-type: TURTLE
+  # Animation types:
+  # --------------------------------------------
+  # Rotate:
+  # optional data: direction (LEFT/RIGHT), speed (number)
+  # --------------------------------------------
+  # UpDown:
+  # optional data: value (double - jump value), jumps (number of jumps up and jumps down), smooth (boolean)
+  # --------------------------------------------
+  animations:
+    rotate:
+      type: Rotate
+      direction: LEFT
+      # Recommended speed for entities is 16-30
+      speed: 16
+    updown:
+      type: UpDown
+      jump: 0.05
+      jumps: 20
+      smooth: true
+
+# OPTIONAL
+hologram:
+  offset:
+    x: 0.0
+    # height offset
+    y: 1.0
+    z: 0.0
+  # Space value between lines (0.25 by default)
+  space: 0.25
+  attach-bottom: true
+  update-location: true
+  # name lines
+  lines:
+    - '<G:53bd4b>Turtle power!</G:3b6138>'
+    - '&8&m                       '
+    - ''
+    - '&fThis tutrle is powered by <#8cf584>RotatingHeads 2'
+    - '&fIncredible, right?'
+    - '<#8cf584>It works like a npc, but it rotates!'
+    - ''
+
+# OPTIONAL
+# Click types: LEFT, RIGHT, SHIFT_LEFT, SHIFT_RIGHT, ALL
+# Use character + for multiple click types
+actions:
+  ALL:
+    type: message
+    value: '<G:53bd4b>Turtle power!</G:3b6138>'

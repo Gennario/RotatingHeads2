@@ -1,0 +1,20 @@
+settings:
+  view-distance: 30
+  view-permission: 'rh.head'
+  location: 'world(100,80,100)'
+  type: STAND
+  animations:
+    rotate:
+      type: Rotate
+      direction: LEFT
+      speed: 1.5
+
+equipment:
+  HEAD:
+    material: PLAYER_HEAD
+    player: '%player%'
+
+actions:
+  ALL:
+    type: message
+    value: '&cHi!'

@@ -1,6 +1,5 @@
 package cz.gennario.newrotatingheads;
 
-import com.comphenix.protocol.ProtocolLib;
 import com.comphenix.protocol.ProtocolLibrary;
 import cz.gennario.newrotatingheads.system.HeadInteraction;
 import cz.gennario.newrotatingheads.system.HeadRunnable;
@@ -19,10 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public final class Main extends JavaPlugin {
@@ -85,8 +81,8 @@ public final class Main extends JavaPlugin {
         command = new Command();
 
         /*
-        *  HEADS LOADER
-        * */
+         *  HEADS LOADER
+         * */
         File heads = createHeadsFolder();
         loadHeads(heads);
 
@@ -99,6 +95,9 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        for (RotatingHead head : getHeadsList()) {
+            head.deleteHead();
+        }
     }
 
     public void loadLanguage() {
@@ -108,11 +107,12 @@ public final class Main extends JavaPlugin {
     }
 
     public File createHeadsFolder() {
-        File heads = new File(getDataFolder()+"/heads/");
-        if(!heads.exists()) {
+        File heads = new File(getDataFolder() + "/heads/");
+        if (!heads.exists()) {
             heads.mkdir();
             try {
-                new Config(this, "heads", "example", getResource("heads/example.yml")).load();
+                new Config(this, "heads", "example_stand", getResource("heads/example_stand.yml")).load();
+                new Config(this, "heads", "example_entity", getResource("heads/example_entity.yml")).load();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -132,16 +132,24 @@ public final class Main extends JavaPlugin {
         }
     }
 
+    public void loadHead(String name) {
+        RotatingHead rotatingHead = new RotatingHead(null, name, true);
+        rotatingHead.loadFromConfig();
+        rotatingHead.updateHead();
+
+        this.heads.put(name, rotatingHead);
+    }
+
     public RotatingHead getHeadByName(String name) {
-        if(heads.containsKey(name)) return heads.get(name);
+        if (heads.containsKey(name)) return heads.get(name);
         return null;
     }
 
     public List<RotatingHead> getHeadsList() {
-        return (List<RotatingHead>) heads.values();
+        return new ArrayList<>(heads.values());
     }
 
-    public static Main getInstance()  {
+    public static Main getInstance() {
         return instance;
     }
 

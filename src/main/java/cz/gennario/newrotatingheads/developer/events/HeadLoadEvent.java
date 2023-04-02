@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class HeadLoadEvent extends Event implements Cancellable {
 
+    private static final HandlerList handlers = new HandlerList();
     private final RotatingHead rotatingHead;
     private final String name;
     private final int entityId;
@@ -39,6 +40,6 @@ public class HeadLoadEvent extends Event implements Cancellable {
     @NotNull
     @Override
     public HandlerList getHandlers() {
-        return null;
+        return handlers;
     }
 }

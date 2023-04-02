@@ -1,4 +1,4 @@
-config-version: 1.1
+config-version: 1.0
 
 commands:
   prefix: '<#f56c6c>· <G:c97b7b>RotatingHeads2</G:ff4a4a> &8| '
@@ -38,3 +38,13 @@ messages:
     other: '&fTeleporting player <#ffa3a3>%player% &fto rotating head <#ffa3a3>%head%''s &flocation...  &r%silent%'
     silent: '&7&o(silent)'
     other-player: '&f<#ffa3a3>%sender% &fhas teleported you to rotating head <#ffa3a3>%head%''s &flocation...'
+  create:
+    exist: '&cHead with name &f%name% &calready exist. Try different names like: &f%name_ideas%&c...'
+    created: '&fHead with name &c%name% &fsuccessfully created.'
+  delete:
+    protection: '&ePlease dispatch this command again to confirm head &f%name% &edelete action!'
+    deleted: '&fHead with name &c%name% &fsuccessfully deleted.'
+  convert:
+    invalid-type: '&cInvalid type of plugin to transfer...'
+    no-files-found: '&cFiles for &f%type% &cdoesn''t exist!'
+    transfer: '&fHeads from plugin &c%type% &fsuccessfully transfered in <#ba6868>%time%ms&f.'
