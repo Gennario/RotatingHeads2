@@ -1,6 +1,8 @@
 package cz.gennario.newrotatingheads;
 
 import com.github.javafaker.Faker;
+import cz.gennario.newrotatingheads.developer.events.HeadReloadEvent;
+import cz.gennario.newrotatingheads.developer.events.HeadUnloadEvent;
 import cz.gennario.newrotatingheads.system.RotatingHead;
 import cz.gennario.newrotatingheads.utils.TextComponentUtils;
 import cz.gennario.newrotatingheads.utils.Utils;
@@ -14,9 +16,11 @@ import lombok.Getter;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.rmi.CORBA.Util;
 import java.io.File;
@@ -73,8 +77,10 @@ public class Command {
                 .setAllowConsoleSender(true)
                 .setResponse((commandSender, s, commandArgs) -> {
                     long start = System.currentTimeMillis();
+                    Map<String, RotatingHead> oldHeads = new HashMap<>();
                     for (RotatingHead head : Main.getInstance().getHeadsList()) {
                         head.deleteHead();
+                        oldHeads.put(head.getName(), head);
                     }
                     Main.getInstance().getHeads().clear();
                     try {
@@ -85,6 +91,14 @@ public class Command {
 
                         File heads = Main.getInstance().createHeadsFolder();
                         Main.getInstance().loadHeads(heads);
+
+                        for (RotatingHead head : Main.getInstance().getHeadsList()) {
+                            if (oldHeads.containsKey(head.getName())) {
+                                RotatingHead oldHead = oldHeads.get(head.getName());
+                                HeadReloadEvent reloadEvent = new HeadReloadEvent(oldHead, head);
+                                Bukkit.getPluginManager().callEvent(reloadEvent);
+                            }
+                        }
 
                         language = Main.getInstance().getLanguageAPI();
                     } catch (IOException e) {
@@ -232,8 +246,8 @@ public class Command {
                         } else {
                             heads.getYamlDocument().set("settings.location", Utils.locationToStringCenter(location));
                             location = location.getBlock().getLocation();
-                            location.setX(location.getX()+0.5);
-                            location.setZ(location.getZ()+0.5);
+                            location.setX(location.getX() + 0.5);
+                            location.setZ(location.getZ() + 0.5);
                         }
 
                         heads.getYamlDocument().save();
@@ -269,12 +283,12 @@ public class Command {
                     RotatingHead head = commandArgs[0].getAsHead();
                     String name = head.getName();
 
-                    if(headRemove.containsKey(player)) {
-                        if(headRemove.get(player).equals(name)) {
+                    if (headRemove.containsKey(player)) {
+                        if (headRemove.get(player).equals(name)) {
 
                             YamlDocument yamlDocument = head.getYamlDocument();
-                            if(yamlDocument != null) {
-                                File file = new File(Main.getInstance().getDataFolder()+"/heads/"+head.getName()+".yml");
+                            if (yamlDocument != null) {
+                                File file = new File(Main.getInstance().getDataFolder() + "/heads/" + head.getName() + ".yml");
                                 file.delete();
                             }
                             head.deleteHead();
@@ -284,13 +298,13 @@ public class Command {
                                     new Replacement((playe, string) -> string.replace("%name%", name))).toArray(new String[0]));
 
                             headRemove.remove(player);
-                        }else {
+                        } else {
                             commandSender.sendMessage(language.getMessage("messages.delete.protection",
                                     null,
                                     new Replacement((playe, string) -> string.replace("%name%", name))).toArray(new String[0]));
                             headRemove.put(player, name);
                         }
-                    }else {
+                    } else {
                         commandSender.sendMessage(language.getMessage("messages.delete.protection",
                                 null,
                                 new Replacement((playe, string) -> string.replace("%name%", name))).toArray(new String[0]));
@@ -326,8 +340,8 @@ public class Command {
                         } else {
                             heads.set("settings.location", Utils.locationToStringCenter(location));
                             location = location.getBlock().getLocation();
-                            location.setX(location.getX()+0.5);
-                            location.setZ(location.getZ()+0.5);
+                            location.setX(location.getX() + 0.5);
+                            location.setZ(location.getZ() + 0.5);
                         }
 
                         heads.save();
@@ -353,26 +367,26 @@ public class Command {
 
                     switch (plugin) {
                         case "RH-REBORN":
-                            File file = new File(Main.getInstance().getDataFolder().toString().replace("/RotatingHeads2", "")+"/RotatingHeads");
-                            if(file.exists()) {
+                            File file = new File(Main.getInstance().getDataFolder().toString().replace("/RotatingHeads2", "") + "/RotatingHeads");
+                            if (file.exists()) {
 
-                                File file1 = new File(file.getPath()+"/heads");
+                                File file1 = new File(file.getPath() + "/heads");
                                 List<File> files = new ArrayList<>();
-                                if(file1.exists()) {
+                                if (file1.exists()) {
                                     listFiles(file1, files);
                                 }
 
                                 for (File file2 : files) {
                                     try {
-                                        Files.copy(file2.toPath(), Paths.get(Main.getInstance().getDataFolder()+"/heads/"+file2.getName()), StandardCopyOption.REPLACE_EXISTING);
-                                        Utils.optiomizeConfiguration("/heads/"+file2.getName());
+                                        Files.copy(file2.toPath(), Paths.get(Main.getInstance().getDataFolder() + "/heads/" + file2.getName()), StandardCopyOption.REPLACE_EXISTING);
+                                        Utils.optiomizeConfiguration("/heads/" + file2.getName());
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
                                 }
 
                                 commandSender.sendMessage("transfered");
-                            }else {
+                            } else {
                                 commandSender.sendMessage("not exist file");
                             }
                             break;
@@ -386,9 +400,9 @@ public class Command {
 
     public void listFiles(File file, List<File> files) {
         for (File listFile : file.listFiles()) {
-            if(listFile.isDirectory()) {
+            if (listFile.isDirectory()) {
                 listFiles(listFile, files);
-            }else {
+            } else {
                 files.add(listFile);
             }
         }

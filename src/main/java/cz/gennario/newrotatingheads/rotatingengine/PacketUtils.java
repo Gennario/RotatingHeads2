@@ -141,7 +141,7 @@ public final class PacketUtils {
             packet.getDoubles().write(0, location.getX())
                     .write(1, location.getY())
                     .write(2, location.getZ());
-            packet.getBytes().write(0, (byte) location.getYaw());
+            packet.getBytes().write(0, (byte) ((int) (location.getYaw() * 256.0F / 360.0F)));
             packet.getBooleans().write(0, false);
 
             return packet;

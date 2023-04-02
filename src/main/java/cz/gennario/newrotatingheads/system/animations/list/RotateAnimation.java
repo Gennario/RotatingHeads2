@@ -25,10 +25,10 @@ public class RotateAnimation extends HeadAnimationExtender {
         Location location = rotatingHead.getLastlocation().clone();
         switch (rotateDirection) {
             case LEFT:
-                location.setYaw((float) (location.getYaw()-speed));
+                location.setYaw((float) ((location.getYaw()-speed)));
                 break;
             case RIGHT:
-                location.setYaw((float) (location.getYaw()+speed));
+                location.setYaw((float) ((location.getYaw()+speed)));
                 break;
         }
         return location;
