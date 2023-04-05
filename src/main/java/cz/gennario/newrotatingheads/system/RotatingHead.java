@@ -4,6 +4,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import cz.gennario.newrotatingheads.Main;
 import cz.gennario.newrotatingheads.developer.events.*;
+import cz.gennario.newrotatingheads.rotatingengine.HeadEquipmentValue;
 import cz.gennario.newrotatingheads.rotatingengine.PacketArmorStand;
 import cz.gennario.newrotatingheads.system.animations.AnimationData;
 import cz.gennario.newrotatingheads.system.animations.AnimationLoader;
@@ -55,7 +56,7 @@ public class RotatingHead {
     }
 
     private HeadType headType;
-    private List<Pair<EnumWrappers.ItemSlot, Section>> equipment;
+    private List<Pair<EnumWrappers.ItemSlot, HeadEquipmentValue>> equipment;
     private List<HeadAnimationExtender> animations;
     private Hologram hologram;
 
@@ -202,11 +203,13 @@ public class RotatingHead {
             }
         }
 
-        List<Pair<EnumWrappers.ItemSlot, Section>> items = new ArrayList<>();
+        List<Pair<EnumWrappers.ItemSlot, HeadEquipmentValue>> items = new ArrayList<>();
         if(yamlDocument.contains("equipment")) {
             for (String slot : yamlDocument.getSection("equipment").getRoutesAsStrings(false)) {
                 EnumWrappers.ItemSlot itemSlot = EnumWrappers.ItemSlot.valueOf(slot);
-                items.add(new Pair<>(itemSlot, yamlDocument.getSection("equipment." + slot)));
+                HeadEquipmentValue headEquipmentValue = new HeadEquipmentValue(HeadEquipmentValue.HeadEquipmentType.CONFIG);
+                headEquipmentValue.setConfigData(yamlDocument.getSection("equipment." + slot));
+                items.add(new Pair<>(itemSlot, headEquipmentValue));
             }
         }
         this.equipment = items;
@@ -474,12 +477,12 @@ public class RotatingHead {
         return this;
     }
 
-    public RotatingHead addEquipment(Pair<EnumWrappers.ItemSlot, Section> equipment) {
+    public RotatingHead addEquipment(Pair<EnumWrappers.ItemSlot, HeadEquipmentValue> equipment) {
         this.equipment.add(equipment);
         return this;
     }
 
-    public RotatingHead setEquipment(List<Pair<EnumWrappers.ItemSlot, Section>> equipment) {
+    public RotatingHead setEquipment(List<Pair<EnumWrappers.ItemSlot, HeadEquipmentValue>> equipment) {
         this.equipment = equipment;
         return this;
     }

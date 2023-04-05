@@ -30,7 +30,7 @@ public class PacketArmorStand {
 
     private EulerAngle headRotation, bodyRotation, leftArmRotation, rightArmRotation, leftLegRotation, rightLegRotation;
 
-    private List<Pair<EnumWrappers.ItemSlot, Section>> equipment;
+    private List<Pair<EnumWrappers.ItemSlot, HeadEquipmentValue>> equipment;
 
     public PacketArmorStand() {
         this.entityId = PacketUtils.generateRandomEntityId();
@@ -145,10 +145,10 @@ public class PacketArmorStand {
             PacketContainer packet1 = PacketUtils.applyMetadata(entityId, dataWatcher);
             PacketUtils.sendPacket(player, packet1);
 
-            for (Pair<EnumWrappers.ItemSlot, Section> itemSlotItemStackPair : equipment) {
+            for (Pair<EnumWrappers.ItemSlot, HeadEquipmentValue> itemSlotItemStackPair : equipment) {
                 PacketContainer packet2 = PacketUtils.getEquipmentPacket(entityId, new Pair<>(
                         itemSlotItemStackPair.getFirst(),
-                        ItemSystem.itemFromConfig(itemSlotItemStackPair.getSecond(), player, new Replacement(Utils::colorize))
+                        itemSlotItemStackPair.getSecond().convert(player)
                 ));
                 PacketUtils.sendPacket(player, packet2);
             }
@@ -170,17 +170,17 @@ public class PacketArmorStand {
     }
 
 
-    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, Section>... equipment) {
+    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, HeadEquipmentValue>... equipment) {
         this.equipment.addAll(Arrays.asList(equipment));
         return this;
     }
 
-    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, Section> equipment) {
+    public PacketArmorStand addEquipment(Pair<EnumWrappers.ItemSlot, HeadEquipmentValue> equipment) {
         this.equipment.add(equipment);
         return this;
     }
 
-    public PacketArmorStand setEquipment(List<Pair<EnumWrappers.ItemSlot, Section>> equipment) {
+    public PacketArmorStand setEquipment(List<Pair<EnumWrappers.ItemSlot, HeadEquipmentValue>> equipment) {
         this.equipment = equipment;
         return this;
     }
