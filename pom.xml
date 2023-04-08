@@ -6,10 +6,10 @@
 
     <groupId>cz.gennario</groupId>
     <artifactId>NewRotatingHeads</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>NewRotatingHeads</name>
+    <name>RotatingHeads2</name>
 
     <properties>
         <java.version>1.8</java.version>

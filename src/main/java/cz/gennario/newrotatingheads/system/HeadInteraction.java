@@ -9,8 +9,11 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import cz.gennario.newrotatingheads.Main;
+import cz.gennario.newrotatingheads.developer.events.HeadInteractEvent;
 import cz.gennario.newrotatingheads.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class HeadInteraction {
 
@@ -32,31 +35,42 @@ public class HeadInteraction {
                 int id = packet.getIntegers().read(0);
 
                 EnumWrappers.EntityUseAction action;
-                if(Utils.versionIsAfter(16)) {
+                if (Utils.versionIsAfter(16)) {
                     action = packet.getEnumEntityUseActions().readSafely(0).getAction();
-                }else{
+                } else {
                     action = packet.getEntityUseActions().readSafely(0);
                 }
                 boolean isShift = packet.getBooleans().readSafely(0); // Check if player is crouching
 
+                HeadClickType headClickType = null;
+
+                switch (action.compareTo(EnumWrappers.EntityUseAction.INTERACT)) {
+                    case 1: // LEFT CLICK
+                        if (isShift) headClickType = HeadClickType.SHIFT_LEFT;
+                        else headClickType = HeadClickType.LEFT;
+                        break;
+                    case 2:
+                        if (isShift) headClickType = HeadClickType.SHIFT_RIGHT;
+                        else headClickType = HeadClickType.RIGHT;
+                        break;
+                    default:
+                        return;
+                }
+
+                HeadInteractEvent event = new HeadInteractEvent(id, p, headClickType, isShift);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Bukkit.getPluginManager().callEvent(event);
+                    }
+                }.runTask(Main.getInstance());
+                if (event.isCancelled()) {
+                    return;
+                }
+
                 if (e.getPacketType() == PacketType.Play.Client.USE_ENTITY) {
                     for (RotatingHead head : Main.getInstance().getHeads().values()) {
                         if (head.getId() == id) {
-                            HeadClickType headClickType = null;
-
-                            switch (action.compareTo(EnumWrappers.EntityUseAction.INTERACT)) {
-                                case 1: // LEFT CLICK
-                                    if (isShift) headClickType = HeadClickType.SHIFT_LEFT;
-                                    else headClickType = HeadClickType.LEFT;
-                                    break;
-                                case 2:
-                                    if (isShift) headClickType = HeadClickType.SHIFT_RIGHT;
-                                    else headClickType = HeadClickType.RIGHT;
-                                    break;
-                                default:
-                                    return;
-                            }
-
                             head.checkActions(p, headClickType);
                             return;
                         }

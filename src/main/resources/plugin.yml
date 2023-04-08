@@ -1,7 +1,9 @@
 name: RotatingHeads2
 author: Gennario
-version: ALPHA-0.0.1
+version: 1.0.0
 main: cz.gennario.newrotatingheads.Main
 api-version: 1.13
+softdepend:
+  - PlaceholderAPI
 depend:
   - ProtocolLib

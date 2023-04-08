@@ -249,9 +249,6 @@ public final class Utils {
                     click = clicks.getSecond().replace(":", "+");
                 }
 
-                Bukkit.broadcastMessage(click);
-                Bukkit.broadcastMessage(actionType);
-
                 yamlDocument.set("actions." + click + ".type", actionType);
                 if (valueExist(stringReader, "value")) {
                     yamlDocument.set("actions." + click + ".value", stringReader.getStringFromData(getData(stringReader, "value")).getSecond());

@@ -179,7 +179,6 @@ public class RotatingHead {
         this.viewPermission = yamlDocument.getString("settings.view-permission", null);
         this.location = Utils.getLocation(yamlDocument.getString("settings.location"));
         this.yaw = yamlDocument.getFloat("settings.yaw", 0f);
-        Bukkit.broadcastMessage(yaw+"");
         location.setYaw(yaw);
         this.lastlocation = location;
         this.headType = HeadType.valueOf(yamlDocument.getString("settings.type", "STAND"));

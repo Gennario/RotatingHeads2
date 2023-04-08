@@ -1,50 +1,51 @@
 config-version: 1.0
 
 commands:
-  prefix: '<#f56c6c>· <G:c97b7b>RotatingHeads2</G:ff4a4a> &8| '
-  usage: '&fUse: <#ffa3a3>/%label% %help%'
-  no-perms: '<#ffa3a3>You don''t have enough permissions to do this!'
-  invalid-usage: '<#ffa3a3>Wrong insterted value at arg: &f%value%&c!'
-  disabled-console: '<#ffa3a3>This command is only for players!'
+  prefix: '<#a33434>· <G:ff2b2b>RotatingHeads 2</G:b81d1d> &8| '
+  usage: '&fUse: <#ffa6a6>/%label% %help%'
+  no-perms: <#ff4d4d>You don't have enough permissions to do this!
+  invalid-usage: '<#ff4d4d>Wrong insterted value at arg: &f%value%&c!'
+  disabled-console: <#ff4d4d>This command is only for players!
   help:
     header:
       - '&r'
-      - '<center><#ffa3a3>- - - <G:c97b7b>&lRotatingHeads2</G:ff4a4a> <#ffa3a3>- - -'
+      - <center><#a33434>- - - <G:ff2b2b>&lRotatingHeads 2</G:b81d1d> <#a33434>- - -
       - '<center>&7Help &8 | &7 Page: %page%/%max-page%'
-      - '<center>&7<> - Required &8 | &7 [] - Optional'
+      - <center>&7<> - Required &8 | &7 [] - Optional
       - '&r'
-    format: ' <#ffa3a3>· &f/%label% %cmd% &8| &7%usage%'
+    format: ' <#a33434>· &f/%label% %cmd% &8| &7%usage%'
     pagination:
       space: ' &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r &r'
-      previouspage: '<#ff4a4a><<< Previous '
+      previouspage: '<#ffa6a6><<< Previous '
       split: '&8|'
-      nextpage: '<#ff4a4a> Next >>>'
+      nextpage: <#ffa6a6> Next >>>
     footer:
       - '&r'
 
 messages:
-  reload: '&fPlugin successfully reloaded in <#ba6868>%time%ms&f.'
+  reload: '&fPlugin successfully reloaded in <#ffa6a6>%time%ms&f.'
   list:
     header:
       - '&r'
-      - '<center><#ffa3a3>- - - <G:c97b7b>&lRotatingHeads2</G:ff4a4a> <#ffa3a3>- - -'
+      - <center><#a33434>- - - <G:ff2b2b>&lRotatingHeads 2</G:b81d1d> <#a33434>- - -
       - '&r'
-    format: ' <#ffa3a3>· &f%head% &8| &7%world% - %x%:%y%:%z%'
-    hover: '&fClick to teleport!'
+    format: ' <#a33434>· &f%head% &8| &7%world% - %x%:%y%:%z%'
+    hover: '<#ffa6a6>Click to teleport!'
     footer:
       - '&r'
   teleport:
-    self: '&fTeleporting you to rotating head <#ffa3a3>%head%''s &flocation...'
-    other: '&fTeleporting player <#ffa3a3>%player% &fto rotating head <#ffa3a3>%head%''s &flocation...  &r%silent%'
+    self: '&fTeleporting you to rotating head <#ffa6a6>%head%''s &flocation...'
+    other: '&fTeleporting player <#ffa6a6>%player% &fto rotating head <#ffa6a6>%head%''s &flocation...  &r%silent%'
     silent: '&7&o(silent)'
-    other-player: '&f<#ffa3a3>%sender% &fhas teleported you to rotating head <#ffa3a3>%head%''s &flocation...'
+    other-player: '&f<#ffa6a6>%sender% &fhas teleported you to rotating head <#ffa6a6>%head%''s &flocation...'
   create:
-    exist: '&cHead with name &f%name% &calready exist. Try different names like: &f%name_ideas%&c...'
-    created: '&fHead with name &c%name% &fsuccessfully created.'
+    exist: '<#ff4d4d>Head with name &f%name% <#ff4d4d>already exist. Try different names like: &f%name_ideas%<#ff4d4d>...'
+    created: '&fHead with name <#ffa6a6>%name% &fsuccessfully created.'
   delete:
     protection: '&ePlease dispatch this command again to confirm head &f%name% &edelete action!'
-    deleted: '&fHead with name &c%name% &fsuccessfully deleted.'
+    deleted: '&fHead with name <#ffa6a6>%name% &fsuccessfully deleted.'
   convert:
-    invalid-type: '&cInvalid type of plugin to transfer...'
-    no-files-found: '&cFiles for &f%type% &cdoesn''t exist!'
-    transfer: '&fHeads from plugin &c%type% &fsuccessfully transfered in <#ba6868>%time%ms&f.'
+    invalid-type: '<#ff4d4d>Invalid type of plugin to transfer...'
+    no-files-found: '<#ff4d4d>Files for &f%type% <#ff4d4d>doesn''t exist!'
+    start: '&fFiles transfer started...'
+    transfer: '&fHeads from plugin <#ffa6a6>%type% &fsuccessfully transfered in <#ffa6a6>%time%ms&f.'

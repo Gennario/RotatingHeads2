@@ -1,6 +1,8 @@
 package cz.gennario.newrotatingheads;
 
 import com.comphenix.protocol.ProtocolLibrary;
+import cz.gennario.newrotatingheads.rotatingengine.actions.ActionData;
+import cz.gennario.newrotatingheads.rotatingengine.actions.ActionResponse;
 import cz.gennario.newrotatingheads.system.HeadInteraction;
 import cz.gennario.newrotatingheads.system.HeadRunnable;
 import cz.gennario.newrotatingheads.system.RotatingHead;
@@ -12,8 +14,10 @@ import cz.gennario.newrotatingheads.utils.Utils;
 import cz.gennario.newrotatingheads.utils.config.Config;
 import cz.gennario.newrotatingheads.utils.debug.Logger;
 import cz.gennario.newrotatingheads.utils.language.LanguageAPI;
+import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;

@@ -362,11 +362,15 @@ public class Command {
                 .setAllowConsoleSender(true)
                 .setResponse((commandSender, s, commandArgs) -> {
                     String plugin = commandArgs[0].getAsString();
+                    long start = System.currentTimeMillis();
 
                     switch (plugin) {
                         case "RH-REBORN":
                             File file = new File(Main.getInstance().getDataFolder().toString().replace("/RotatingHeads2", "") + "/RotatingHeads");
                             if (file.exists()) {
+                                commandSender.sendMessage(language.getMessage("messages.convert.start",
+                                        null,
+                                        new Replacement((playe, string) -> string.replace("%type%", plugin))).toArray(new String[0]));
 
                                 File file1 = new File(file.getPath() + "/heads");
                                 List<File> files = new ArrayList<>();
@@ -383,14 +387,50 @@ public class Command {
                                     }
                                 }
 
-                                commandSender.sendMessage("transfered");
+                                commandSender.sendMessage(language.getMessage("messages.convert.transfer",
+                                        null,
+                                        new Replacement((playe, string) -> string.replace("%type%", plugin).replace("%time%", "" + (System.currentTimeMillis() - start)))).toArray(new String[0]));
                             } else {
-                                commandSender.sendMessage("not exist file");
+                                commandSender.sendMessage(language.getMessage("messages.convert.no-files-found",
+                                        null,
+                                        new Replacement((playe, string) -> string.replace("%type%", plugin))).toArray(new String[0]));
                             }
                             break;
                         case "RH-PRO":
+                            File file2 = new File(Main.getInstance().getDataFolder().toString().replace("/RotatingHeads2", "") + "/RotatingHeadsPRO");
+                            if (file2.exists()) {
+                                commandSender.sendMessage(language.getMessage("messages.convert.start",
+                                        null,
+                                        new Replacement((playe, string) -> string.replace("%type%", plugin))).toArray(new String[0]));
+
+                                File file1 = new File(file2.getPath() + "/heads");
+                                List<File> files = new ArrayList<>();
+                                if (file1.exists()) {
+                                    listFiles(file1, files);
+                                }
+
+                                for (File file3 : files) {
+                                    try {
+                                        Files.copy(file3.toPath(), Paths.get(Main.getInstance().getDataFolder() + "/heads/" + file3.getName()), StandardCopyOption.REPLACE_EXISTING);
+                                        Utils.optiomizeConfiguration("/heads/" + file3.getName());
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+
+                                commandSender.sendMessage(language.getMessage("messages.convert.transfer",
+                                        null,
+                                        new Replacement((playe, string) -> string.replace("%type%", plugin).replace("%time%", "" + (System.currentTimeMillis() - start)))).toArray(new String[0]));
+                            } else {
+                                commandSender.sendMessage(language.getMessage("messages.convert.no-files-found",
+                                        null,
+                                        new Replacement((playe, string) -> string.replace("%type%", plugin))).toArray(new String[0]));
+                            }
                             break;
                         default:
+                            commandSender.sendMessage(language.getMessage("messages.convert.invalid-type",
+                                    null,
+                                    new Replacement((playe, string) -> string)).toArray(new String[0]));
                             break;
                     }
                 });
