@@ -105,4 +105,11 @@ public class PrivateHologramProvider extends HologramExtender {
 
         players.remove(player);
     }
+
+    @Override
+    public void refreshLines(Player player) {
+        for (PacketArmorStand packetArmorStand : lines.values()) {
+            packetArmorStand.updateName(player);
+        }
+    }
 }

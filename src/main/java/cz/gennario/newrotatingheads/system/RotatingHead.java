@@ -248,10 +248,14 @@ public class RotatingHead {
             double zOffset = yamlDocument.getDouble("hologram.offset.z", 0.0);
             boolean attachBottom = yamlDocument.getBoolean("hologram.attach-bottom", false);
             boolean updateLocation = yamlDocument.getBoolean("hologram.update-location", false);
+            boolean updateLines = yamlDocument.getBoolean("hologram.update-lines", true);
+            int updateLinesTime = yamlDocument.getInt("hologram.update-lines-time", 100);
             List<String> lines = yamlDocument.getStringList("hologram.lines");
             if(lines != null) {
                 this.hologram = new Hologram(this, new PrivateHologramProvider(name+"-hologram", this));
                 this.hologram.create(space, xOffset, yOffset, zOffset, attachBottom, lines);
+                this.hologram.setUpdateLines(updateLines);
+                this.hologram.setUpdateLinesTime(updateLinesTime);
                 this.hologram.setUpdateLocation(updateLocation);
             }
         }
@@ -293,17 +297,19 @@ public class RotatingHead {
         }
     }
 
-    public void deleteHead() {
-        HeadUnloadEvent loadEvent = new HeadUnloadEvent(this, false);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Bukkit.getPluginManager().callEvent(loadEvent);
-            }
-        }.runTask(Main.getInstance());
+    public void deleteHead(boolean event) {
+        if(event) {
+            HeadUnloadEvent loadEvent = new HeadUnloadEvent(this, false);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Bukkit.getPluginManager().callEvent(loadEvent);
+                }
+            }.runTask(Main.getInstance());
 
-        if(loadEvent.isCancelled()) {
-            return;
+            if (loadEvent.isCancelled()) {
+                return;
+            }
         }
 
         Main.getInstance().getHeads().remove(name);
@@ -401,6 +407,10 @@ public class RotatingHead {
                     case ENTITY:
                         packetEntity.teleport(player, lastlocation);
                         break;
+                }
+
+                if(hologram != null) {
+                    hologram.updateLines(player, false);
                 }
             }
             if(hologram != null) {

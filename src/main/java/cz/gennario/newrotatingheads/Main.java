@@ -103,7 +103,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         for (RotatingHead head : getHeadsList()) {
-            head.deleteHead();
+            head.deleteHead(false);
         }
     }
 

@@ -19,10 +19,16 @@ public class Hologram {
     private boolean updateLocation;
     private double offsetX, offsetY, offsetZ;
 
+    private boolean updateLines;
+    private int updateLinesTime;
+    private int currentUpdateLinesTime;
+
     public Hologram(RotatingHead rotatingHead, PrivateHologramProvider privateHologramProvider) {
         this.rotatingHead = rotatingHead;
         this.privateHologramProvider = privateHologramProvider;
         this.updateLocation = false;
+        this.updateLines = false;
+        this.currentUpdateLinesTime = 0;
     }
 
     public void create(double space, double offsetX, double offsetY, double offsetZ, boolean attachBottom, List<String> lines) {
@@ -49,6 +55,22 @@ public class Hologram {
         if(updateLocation) {
             Location add = rotatingHead.getLastlocation().clone().add(offsetX, offsetY, offsetZ);
             privateHologramProvider.moveHologram(add.clone());
+        }
+    }
+
+    public void updateLines(Player player, boolean force) {
+        if(force) {
+            privateHologramProvider.refreshLines(player);
+        }else {
+            if(updateLines) {
+                if (currentUpdateLinesTime >= updateLinesTime) {
+
+                    privateHologramProvider.refreshLines(player);
+                    currentUpdateLinesTime = 0;
+                } else {
+                    currentUpdateLinesTime++;
+                }
+            }
         }
     }
 }

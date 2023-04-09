@@ -77,7 +77,7 @@ public class Command {
                     long start = System.currentTimeMillis();
                     Map<String, RotatingHead> oldHeads = new HashMap<>();
                     for (RotatingHead head : Main.getInstance().getHeadsList()) {
-                        head.deleteHead();
+                        head.deleteHead(true);
                         oldHeads.put(head.getName(), head);
                     }
                     Main.getInstance().getHeads().clear();
@@ -289,7 +289,7 @@ public class Command {
                                 File file = new File(Main.getInstance().getDataFolder() + "/heads/" + head.getName() + ".yml");
                                 file.delete();
                             }
-                            head.deleteHead();
+                            head.deleteHead(true);
 
                             commandSender.sendMessage(language.getMessage("messages.delete.deleted",
                                     null,
@@ -348,7 +348,7 @@ public class Command {
                         throw new RuntimeException(e);
                     }
 
-                    head.deleteHead();
+                    head.deleteHead(true);
                     Main.getInstance().loadHead(head.getName());
                 });
     }

@@ -26,4 +26,5 @@ public abstract class HologramExtender {
     public abstract void deleteHologram();
     public abstract void spawn(Player player);
     public abstract void despawn(Player player);
+    public abstract void refreshLines(Player player);
 }

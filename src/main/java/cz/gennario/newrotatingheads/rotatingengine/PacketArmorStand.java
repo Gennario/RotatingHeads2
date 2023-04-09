@@ -157,6 +157,21 @@ public class PacketArmorStand {
         }
     }
 
+    public void updateName(Player player) {
+        WrappedDataWatcher dataWatcher = PacketUtils.getDataWatcher();
+        if (name != null) {
+            Optional<?> opt = Optional.of(WrappedChatComponent.fromChatMessage(Utils.colorize(player, this.name))[0].getHandle());
+            try {
+                PacketUtils.setMetadata(dataWatcher, 2, WrappedDataWatcher.Registry.getChatComponentSerializer(true), opt);
+            } catch (Exception e) {
+                PacketUtils.setMetadata(dataWatcher, 2, String.class, this.name);
+            }
+        }
+
+        PacketContainer packet1 = PacketUtils.applyMetadata(entityId, dataWatcher);
+        PacketUtils.sendPacket(player, packet1);
+    }
+
     public void delete(Player player) {
         PacketContainer destroyPacket = PacketUtils.destroyEntityPacket(entityId);
         PacketUtils.sendPacket(player, destroyPacket);
