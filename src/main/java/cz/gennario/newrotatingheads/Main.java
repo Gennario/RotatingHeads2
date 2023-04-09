@@ -9,6 +9,7 @@ import cz.gennario.newrotatingheads.system.RotatingHead;
 import cz.gennario.newrotatingheads.system.animations.AnimationLoader;
 import cz.gennario.newrotatingheads.rotatingengine.actions.ActionsAPI;
 import cz.gennario.newrotatingheads.rotatingengine.conditions.ConditionsAPI;
+import cz.gennario.newrotatingheads.utils.Metrics;
 import cz.gennario.newrotatingheads.utils.PluginUpdater;
 import cz.gennario.newrotatingheads.utils.Utils;
 import cz.gennario.newrotatingheads.utils.config.Config;
@@ -47,6 +48,8 @@ public final class Main extends JavaPlugin {
         instance = this;
         log = new Logger(Main.getInstance());
         pluginUpdater = new PluginUpdater(2203, this);
+        new Metrics(this, 18169)
+                .addCustomChart(new Metrics.SingleLineChart("heads_count", () -> getHeadsList().size()));
 
         if (Utils.versionIsBeforeOrEqual(13)) {
             pluginUpdater.sendErrorOnLoadMessage("Unsupported server version. Use version from 1.14 to Latest.");

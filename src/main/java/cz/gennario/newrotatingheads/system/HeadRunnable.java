@@ -30,6 +30,11 @@ public class HeadRunnable extends BukkitRunnable {
                         }
                     }
                 }
+                for (Player player : value.getPlayers()) {
+                    if(!value.getLastlocation().getWorld().getPlayers().contains(player)) {
+                        value.despawn(player);
+                    }
+                }
                 value.pingAnimations();
             }
         }

@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cz.gennario</groupId>
-    <artifactId>NewRotatingHeads</artifactId>
-    <version>1.0.0</version>
+    <artifactId>RotatingHeads2</artifactId>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>RotatingHeads2</name>
