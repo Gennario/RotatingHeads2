@@ -27,7 +27,6 @@ public final class PacketUtils {
             protocolManager.sendServerPacket(player, packet);
         } catch (Exception e) {
             e.printStackTrace();
-            sendPacket(player, packet);
         }
     }
 

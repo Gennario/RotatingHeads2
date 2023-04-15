@@ -1,9 +1,11 @@
 name: RotatingHeads2
 author: Gennario
-version: 1.0.1
+version: 1.0.2
 main: cz.gennario.newrotatingheads.Main
 api-version: 1.13
 softdepend:
   - PlaceholderAPI
+  - Multiworld
+  - Multiverse-Core
 depend:
   - ProtocolLib

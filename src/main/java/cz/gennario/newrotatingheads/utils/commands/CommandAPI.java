@@ -1,6 +1,7 @@
 package cz.gennario.newrotatingheads.utils.commands;
 
 import cz.gennario.newrotatingheads.Main;
+import cz.gennario.newrotatingheads.system.RotatingHead;
 import cz.gennario.newrotatingheads.utils.language.LanguageAPI;
 import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import lombok.Getter;
@@ -285,7 +286,11 @@ public class CommandAPI {
                                         }
                                         return list;
                                     case HEAD:
-                                        list.addAll(Main.getInstance().getHeads().keySet());
+                                        for (RotatingHead s : Main.getInstance().getHeads().values()) {
+                                            if(!s.isTempHead()) {
+                                                list.add(s.getName());
+                                            }
+                                        }
                                         return list;
                                 }
                             }

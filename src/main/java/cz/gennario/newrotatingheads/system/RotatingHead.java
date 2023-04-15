@@ -55,6 +55,8 @@ public class RotatingHead {
         NPC
     }
 
+    private boolean tempHead = false;
+
     private HeadType headType;
     private List<Pair<EnumWrappers.ItemSlot, HeadEquipmentValue>> equipment;
     private List<HeadAnimationExtender> animations;
@@ -77,6 +79,8 @@ public class RotatingHead {
         this.name = name;
         this.headStatus = HeadStatus.ENABLED;
         this.yaw = 0f;
+
+        if(!withConfig) tempHead = true;
 
         HeadLoadEvent loadEvent = new HeadLoadEvent(this, name, id, location, false);
         new BukkitRunnable() {
@@ -178,6 +182,12 @@ public class RotatingHead {
         this.viewDistance = yamlDocument.getInt("settings.view-distance", 30);
         this.viewPermission = yamlDocument.getString("settings.view-permission", null);
         this.location = Utils.getLocation(yamlDocument.getString("settings.location"));
+        if(location == null) {
+            deleteHead(true);
+            Main.getInstance().getLog().log(Level.WARNING, "Head "+name+" has incorrect location. Disabling head.");
+            return;
+        }
+        this.lastlocation = location;
         this.yaw = yamlDocument.getFloat("settings.yaw", 0f);
         location.setYaw(yaw);
         this.lastlocation = location;

@@ -81,7 +81,11 @@ public class CommandArg {
     }
 
     public boolean isRotatingHead() {
-        return Main.getInstance().getHeads().containsKey(arg);
+        if (Main.getInstance().getHeads().containsKey(arg)) {
+            RotatingHead rotatingHead = Main.getInstance().getHeads().get(arg);
+            return !rotatingHead.isTempHead();
+        }
+        return false;
     }
 
     public String getAsString() {

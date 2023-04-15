@@ -6,7 +6,7 @@
 
     <groupId>cz.gennario</groupId>
     <artifactId>RotatingHeads2</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>RotatingHeads2</name>

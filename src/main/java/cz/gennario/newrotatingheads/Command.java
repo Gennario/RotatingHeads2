@@ -77,10 +77,10 @@ public class Command {
                     long start = System.currentTimeMillis();
                     Map<String, RotatingHead> oldHeads = new HashMap<>();
                     for (RotatingHead head : Main.getInstance().getHeadsList()) {
+                        if(head.isTempHead()) continue;
                         head.deleteHead(true);
                         oldHeads.put(head.getName(), head);
                     }
-                    Main.getInstance().getHeads().clear();
                     try {
                         Main.getInstance().getConfigFile().getYamlDocument().reload();
 
@@ -119,8 +119,10 @@ public class Command {
                         commandSender.sendMessage(Utils.colorize(null, s1));
                     }
 
-                    for (String headName : Main.getInstance().getHeads().keySet()) {
-                        RotatingHead head = Main.getInstance().getHeadByName(headName);
+                    for (RotatingHead head : Main.getInstance().getHeads().values()) {
+                        if(head.isTempHead()) continue;
+
+                        String headName = head.getName();
                         Location clone = head.getLocation().clone();
                         if (commandSender instanceof Player) {
                             Player player = (Player) commandSender;
