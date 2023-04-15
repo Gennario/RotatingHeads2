@@ -172,6 +172,50 @@ public class PacketArmorStand {
         PacketUtils.sendPacket(player, packet1);
     }
 
+    public void updateBody(Player player) {
+        WrappedDataWatcher dataWatcher = PacketUtils.getDataWatcher();
+
+        if (headRotation != null) {
+            int id = 16;
+            if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+            if (Utils.versionIsBeforeOrEqual(14)) id = 12;
+            PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(headRotation.getX()), (float) Math.toDegrees(headRotation.getY()), (float) Math.toDegrees(headRotation.getZ())));
+        }
+        if (bodyRotation != null) {
+            int id = 17;
+            if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+            if (Utils.versionIsBeforeOrEqual(14)) id = 13;
+            PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(bodyRotation.getX()), (float) Math.toDegrees(bodyRotation.getY()), (float) Math.toDegrees(bodyRotation.getZ())));
+        }
+        if (leftArmRotation != null) {
+            int id = 18;
+            if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+            if (Utils.versionIsBeforeOrEqual(14)) id = 14;
+            PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftArmRotation.getX()), (float) Math.toDegrees(leftArmRotation.getY()), (float) Math.toDegrees(leftArmRotation.getZ())));
+        }
+        if (rightArmRotation != null) {
+            int id = 19;
+            if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+            if (Utils.versionIsBeforeOrEqual(14)) id = 15;
+            PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightArmRotation.getX()), (float) Math.toDegrees(rightArmRotation.getY()), (float) Math.toDegrees(rightArmRotation.getZ())));
+        }
+        if (leftArmRotation != null) {
+            int id = 20;
+            if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+            if (Utils.versionIsBeforeOrEqual(14)) id = 16;
+            PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(leftLegRotation.getX()), (float) Math.toDegrees(leftLegRotation.getY()), (float) Math.toDegrees(leftLegRotation.getZ())));
+        }
+        if (rightLegRotation != null) {
+            int id = 21;
+            if (Utils.versionIsBeforeOrEqual(16)) id = id - 1;
+            if (Utils.versionIsBeforeOrEqual(14)) id = 17;
+            PacketUtils.setMetadata(dataWatcher, id, Vector3F.getMinecraftClass(), new Vector3F((float) Math.toDegrees(rightLegRotation.getX()), (float) Math.toDegrees(rightLegRotation.getY()), (float) Math.toDegrees(rightLegRotation.getZ())));
+        }
+
+        PacketContainer packet1 = PacketUtils.applyMetadata(entityId, dataWatcher);
+        PacketUtils.sendPacket(player, packet1);
+    }
+
     public void delete(Player player) {
         PacketContainer destroyPacket = PacketUtils.destroyEntityPacket(entityId);
         PacketUtils.sendPacket(player, destroyPacket);

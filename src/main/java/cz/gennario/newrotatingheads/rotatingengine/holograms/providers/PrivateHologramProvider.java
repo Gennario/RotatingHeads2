@@ -71,6 +71,8 @@ public class PrivateHologramProvider extends HologramExtender {
 
         for (PacketArmorStand line : lines.values()) {
             for (Player player : players) {
+                if(player == null) continue;
+                if(!player.isOnline()) continue;
                 line.teleport(player, location.clone());
             }
 

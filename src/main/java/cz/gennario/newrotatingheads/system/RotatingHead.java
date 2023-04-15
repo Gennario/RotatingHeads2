@@ -369,6 +369,7 @@ public class RotatingHead {
     }
 
     public void checkActions(Player player, HeadInteraction.HeadClickType headClickType) {
+        if(tempHead) return;
         if (yamlDocument.contains("actions")) {
             for (String clickType : yamlDocument.getSection("actions").getRoutesAsStrings(false)) {
                 if(clickType.contains("+")) {
