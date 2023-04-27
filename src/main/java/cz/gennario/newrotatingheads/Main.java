@@ -91,7 +91,7 @@ public final class Main extends JavaPlugin {
          *  HEADS LOADER
          * */
         File heads = createHeadsFolder();
-        loadHeads(heads);
+        getServer().getScheduler().runTask(this, () -> this.loadHeads(heads));
 
 
         new HeadInteraction().register();
