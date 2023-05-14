@@ -6,6 +6,7 @@ import cz.gennario.newrotatingheads.utils.Utils;
 import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
+import me.alexmc.api.THeadsAPI;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -79,7 +80,7 @@ public class ItemSystem {
         if (customModelData != 0) itemMeta.setCustomModelData(customModelData);
         itemStack.setItemMeta(itemMeta);
 
-        if(itemMeta instanceof LeatherArmorMeta) {
+        if (itemMeta instanceof LeatherArmorMeta) {
             if (section.contains("leather")) {
                 LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemStack.getItemMeta();
                 String[] split = section.getString("leather").split(";");
@@ -148,7 +149,7 @@ public class ItemSystem {
         if (customModelData != 0) itemMeta.setCustomModelData(customModelData);
         itemStack.setItemMeta(itemMeta);
 
-        if(itemMeta instanceof LeatherArmorMeta) {
+        if (itemMeta instanceof LeatherArmorMeta) {
             if (section.contains("leather")) {
                 LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemStack.getItemMeta();
                 String[] split = section.getString("leather").split(";");
@@ -168,7 +169,8 @@ public class ItemSystem {
         byte data = 0;
         if (section.getString("data") != null) data = section.getByte("data");
         String name = null;
-        if (section.getString("name") != null) name = Utils.colorize(player, replacement.replace(player, section.getString("name")));
+        if (section.getString("name") != null)
+            name = Utils.colorize(player, replacement.replace(player, section.getString("name")));
         List<String> lore = new ArrayList<>();
         if (section.getString("lore") != null) {
             for (String line : section.getStringList("lore")) {
@@ -195,10 +197,15 @@ public class ItemSystem {
         // ITEM GENERATE
 
         ItemStack itemStack = null;
-        if (section.getString("base64") != null) {
+        if (section.contains("base64")) {
             itemStack = HeadManager.convert(HeadManager.HeadType.BASE64, replacement.replace(player, section.getString("base64")));
-        } else if (section.getString("player") != null) {
+        } else if (section.contains("player")) {
             itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, replacement.replace(player, section.getString("player")));
+        } else if (section.contains("transparent-head")) {
+            Section section1 = section.getSection("transparent-head");
+            String location = section1.getString("location");
+            Boolean aBoolean = section1.getBoolean("include-default-url");
+            itemStack = THeadsAPI.getInstance().getHeadItem(location, aBoolean);
         } else {
             itemStack = new ItemStack(material, amount, data);
         }
@@ -217,7 +224,7 @@ public class ItemSystem {
         if (customModelData != 0) itemMeta.setCustomModelData(customModelData);
         itemStack.setItemMeta(itemMeta);
 
-        if(itemMeta instanceof LeatherArmorMeta) {
+        if (itemMeta instanceof LeatherArmorMeta) {
             if (section.contains("leather")) {
                 LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) itemStack.getItemMeta();
                 String[] split = section.getString("leather").split(";");

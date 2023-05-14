@@ -6,7 +6,7 @@
 
     <groupId>cz.gennario</groupId>
     <artifactId>RotatingHeads2</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>RotatingHeads2</name>
@@ -111,6 +111,7 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -145,14 +146,15 @@
             <version>1.1</version>
         </dependency>
         <dependency>
-            <groupId>xyz.xenondevs</groupId>
-            <artifactId>particle</artifactId>
-            <version>1.8.4</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>0.12</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.nicecraftz</groupId>
+            <artifactId>TransparentHeads</artifactId>
+            <version>stable</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
