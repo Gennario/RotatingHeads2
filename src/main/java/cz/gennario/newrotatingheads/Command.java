@@ -15,6 +15,7 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,6 +63,7 @@ public class Command {
         loadDeleteCommand();
         loadMovehereCommand();
         loadConvertCommand();
+        loadCloneCommand();
 
         command.buildCommand();
     }
@@ -246,8 +248,7 @@ public class Command {
                         } else {
                             heads.getYamlDocument().set("settings.location", Utils.locationToStringCenter(location));
                             location = location.getBlock().getLocation();
-                            location.setX(location.getX() + 0.5);
-                            location.setZ(location.getZ() + 0.5);
+                            location.add(0.5, 0, 0.5);
                         }
 
                         heads.getYamlDocument().save();
@@ -340,8 +341,7 @@ public class Command {
                         } else {
                             heads.set("settings.location", Utils.locationToStringCenter(location));
                             location = location.getBlock().getLocation();
-                            location.setX(location.getX() + 0.5);
-                            location.setZ(location.getZ() + 0.5);
+                            location.add(0.5, 0, 0.5);
                         }
 
                         heads.save();
@@ -434,6 +434,48 @@ public class Command {
                                     null,
                                     new Replacement((playe, string) -> string)).toArray(new String[0]));
                             break;
+                    }
+                });
+    }
+
+    public void loadCloneCommand() {
+        command.addCommand("clone")
+                .setUsage("clone <head> <new head name>")
+                .setPermission("rh.clone")
+                .setDescription("Transfer files from old RotatingHeads")
+                .addArg("head", SubCommandArg.CommandArgType.REQUIRED, SubCommandArg.CommandArgValue.HEAD)
+                .addArg("new head name", SubCommandArg.CommandArgType.REQUIRED, SubCommandArg.CommandArgValue.STRING)
+                .setAllowConsoleSender(false)
+                .setResponse((commandSender, s, commandArgs) -> {
+                    Faker faker = new Faker();
+                    RotatingHead asHead = commandArgs[0].getAsHead();
+                    String newName = commandArgs[1].getAsString();
+
+                    if (Main.getInstance().getHeads().containsKey(newName)) {
+                        String ideas = faker.app().name(); //faker.app().name();
+                        for (int i = 0; i < 2; i++) {
+                            ideas += ", " + faker.app().name(); //faker.app().name();
+                        }
+                        for (int i = 0; i < 2; i++) {
+                            ideas += ", " + newName + RandomStringUtils.random(3, false, true); //faker.app().name();
+                        }
+                        String finalIdeas = ideas;
+                        commandSender.sendMessage(language.getMessage("messages.clone.exist",
+                                null,
+                                new Replacement((player, string) -> string.replace("%name%", newName).replace("%name_ideas%", finalIdeas))).toArray(new String[0]));
+                        return;
+                    }
+
+                    File toClone = new File(Main.getInstance().getDataFolder(), "heads/" + asHead.getName() + ".yml");
+                    File location = new File(Main.getInstance().getDataFolder(), "heads/" + newName + ".yml");
+
+                    try {
+                        FileUtils.copyFile(toClone, location);
+                        commandSender.sendMessage(language.getMessage("messages.clone.clone",
+                                null,
+                                new Replacement((player, string) -> string.replace("%from%", newName).replace("%to%", newName))).toArray(new String[0]));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 });
     }

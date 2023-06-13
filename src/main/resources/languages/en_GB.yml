@@ -49,3 +49,6 @@ messages:
     no-files-found: '<#ff4d4d>Files for &f%type% <#ff4d4d>doesn''t exist!'
     start: '&fFiles transfer started...'
     transfer: '&fHeads from plugin <#ffa6a6>%type% &fsuccessfully transfered in <#ffa6a6>%time%ms&f.'
+  clone:
+    exist: '<#ff4d4d>Head with name &f%name% <#ff4d4d>already exist. Try different names like: &f%name_ideas%<#ff4d4d>...'
+    clone: '&fSuccessfully cloned head <#ffa6a6>%from%&f to new head <#ffa6a6>%to%&f. Use <#ffa6a6>/rh reload&f to see changes...'
