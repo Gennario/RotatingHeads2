@@ -1,6 +1,6 @@
 name: RotatingHeads2
 author: Gennario
-version: 1.0.4
+version: 1.0.5-BETA
 main: cz.gennario.newrotatingheads.Main
 api-version: 1.13
 softdepend:

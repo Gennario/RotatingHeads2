@@ -6,7 +6,7 @@
 
     <groupId>cz.gennario</groupId>
     <artifactId>RotatingHeads2</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-BETA</version>
     <packaging>jar</packaging>
 
     <name>RotatingHeads2</name>
@@ -66,10 +66,6 @@
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
         <repository>
-            <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/repository/public/</url>
-        </repository>
-        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -85,6 +81,14 @@
         <repository>
             <id>nms-repo</id>
             <url>https://repo.codemc.io/repository/nms/</url>
+        </repository>
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>lukasalt-repo</id>
+            <url>https://repo.lukasa.lt/repository/maven-public/</url>
         </repository>
     </repositories>
 
@@ -104,8 +108,14 @@
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <version>5.1.0-SNAPSHOT</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.spigotmc</groupId>
+                    <artifactId>spigot</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
