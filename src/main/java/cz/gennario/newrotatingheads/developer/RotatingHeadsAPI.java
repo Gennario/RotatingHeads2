@@ -2,8 +2,7 @@ package cz.gennario.newrotatingheads.developer;
 
 import cz.gennario.newrotatingheads.Main;
 import cz.gennario.newrotatingheads.system.RotatingHead;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -13,8 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class RotatingHeadsAPI {
 
     private final Main instance;
