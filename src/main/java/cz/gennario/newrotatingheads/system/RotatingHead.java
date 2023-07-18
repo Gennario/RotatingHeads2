@@ -79,6 +79,7 @@ public class RotatingHead {
     private EntityType entityType;
     private List<Player> players;
     private List<ConditionValue> conditions = new ArrayList<>();
+    private  Replacement conditionsReplacement;
     private float yaw;
 
 
@@ -91,6 +92,7 @@ public class RotatingHead {
         this.headStatus = HeadStatus.ENABLED;
         this.headVisiblity = HeadVisiblity.PUBLIC;
         this.yaw = 0f;
+        this.conditionsReplacement = new Replacement((player, string) -> string);
 
         if(!withConfig) tempHead = true;
 
@@ -309,7 +311,7 @@ public class RotatingHead {
         if (!conditions.isEmpty()) {
             boolean cango = true;
             for (ConditionValue condition : conditions) {
-                if(!Main.getInstance().getConditionsAPI().check(player, condition, new Replacement((player1, string) -> string))) {
+                if(!Main.getInstance().getConditionsAPI().check(player, condition, conditionsReplacement)) {
                     cango = false;
                 }
             }
