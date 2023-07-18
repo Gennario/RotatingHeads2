@@ -6,6 +6,7 @@ import cz.gennario.newrotatingheads.Main;
 import cz.gennario.newrotatingheads.developer.events.*;
 import cz.gennario.newrotatingheads.rotatingengine.HeadEquipmentValue;
 import cz.gennario.newrotatingheads.rotatingengine.PacketArmorStand;
+import cz.gennario.newrotatingheads.rotatingengine.conditions.ConditionValue;
 import cz.gennario.newrotatingheads.system.animations.AnimationData;
 import cz.gennario.newrotatingheads.system.animations.AnimationLoader;
 import cz.gennario.newrotatingheads.system.animations.HeadAnimationExtender;
@@ -14,6 +15,7 @@ import cz.gennario.newrotatingheads.rotatingengine.holograms.Hologram;
 import cz.gennario.newrotatingheads.rotatingengine.holograms.providers.PrivateHologramProvider;
 import cz.gennario.newrotatingheads.utils.Utils;
 import cz.gennario.newrotatingheads.utils.config.Config;
+import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
@@ -55,6 +57,14 @@ public class RotatingHead {
         NPC
     }
 
+    public enum HeadVisiblity {
+        PUBLIC,
+        WHITELIST,
+        BLACKLIST
+    }
+    private HeadVisiblity headVisiblity;
+    private List<String> headVisiblityList = new ArrayList<>();
+
     private boolean tempHead = false;
 
     private HeadType headType;
@@ -68,6 +78,7 @@ public class RotatingHead {
     private PacketEntity packetEntity;
     private EntityType entityType;
     private List<Player> players;
+    private List<ConditionValue> conditions = new ArrayList<>();
     private float yaw;
 
 
@@ -78,6 +89,7 @@ public class RotatingHead {
         this.id = this.packetArmorStand.getEntityId();
         this.name = name;
         this.headStatus = HeadStatus.ENABLED;
+        this.headVisiblity = HeadVisiblity.PUBLIC;
         this.yaw = 0f;
 
         if(!withConfig) tempHead = true;
@@ -199,6 +211,14 @@ public class RotatingHead {
         this.small = yamlDocument.getBoolean("settings.small", false);
         this.glowing = yamlDocument.getBoolean("settings.glowing", false);
 
+        this.conditions = new ArrayList<>();
+        if(yamlDocument.contains("conditions")) {
+            for (String conditionRow : yamlDocument.getSection("conditions").getRoutesAsStrings(false)) {
+                Section section = yamlDocument.getSection("conditions." + conditionRow);
+                registerCondition(section);
+            }
+        }
+
         AnimationLoader animationLoader = Main.getInstance().getAnimationLoader();
         this.animations = new ArrayList<>();
         if(yamlDocument.contains("settings.animations")) {
@@ -279,6 +299,24 @@ public class RotatingHead {
     }
 
     public void spawn(Player player) {
+        switch (headVisiblity) {
+            case BLACKLIST:
+                if(headVisiblityList.contains(player.getName())) return;
+            case WHITELIST:
+                if(!headVisiblityList.contains(player.getName())) return;
+        }
+
+        if (!conditions.isEmpty()) {
+            boolean cango = true;
+            for (ConditionValue condition : conditions) {
+                if(!Main.getInstance().getConditionsAPI().check(player, condition, new Replacement((player1, string) -> string))) {
+                    cango = false;
+                }
+            }
+            if(!cango) return;
+        }
+
+
         HeadPlayerSpawnEvent loadEvent = new HeadPlayerSpawnEvent(this, player, false);
         new BukkitRunnable() {
             @Override
@@ -430,6 +468,16 @@ public class RotatingHead {
         }catch (Exception e) {
 
         }
+    }
+
+    public RotatingHead registerCondition(Section section) {
+        conditions.add(new ConditionValue(section));
+        return this;
+    }
+
+    public RotatingHead registerCondition(String type, String input, String output) {
+        conditions.add(new ConditionValue(type, input, output));
+        return this;
     }
 
     public RotatingHead setHeadStatus(HeadStatus headStatus) {
