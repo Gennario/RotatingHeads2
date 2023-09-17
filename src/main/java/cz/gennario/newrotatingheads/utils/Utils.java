@@ -6,7 +6,6 @@ import cz.gennario.newrotatingheads.utils.centermessage.CenterMessage;
 import cz.gennario.newrotatingheads.utils.config.Config;
 import cz.gennario.newrotatingheads.utils.iridiumcolorapi.IridiumColorAPI;
 import dev.dejvokep.boostedyaml.YamlDocument;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,7 +16,6 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BinaryOperator;
 
 public final class Utils {
 

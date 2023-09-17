@@ -1,7 +1,13 @@
 package cz.gennario.newrotatingheads.utils.items;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import cz.gennario.newrotatingheads.Main;
+import cz.gennario.newrotatingheads.utils.TimeUtils;
+import cz.gennario.newrotatingheads.utils.config.Config;
+import dev.dejvokep.boostedyaml.YamlDocument;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -10,10 +16,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * HeadSystem [1.1]
@@ -22,6 +29,13 @@ import java.util.UUID;
  * Created by Gennario with <3
  */
 public final class HeadManager {
+
+    public enum CacheType {
+        CONFIG,
+        MEMORY
+    }
+    public static final CacheType cacheType = CacheType.valueOf(Main.getInstance().getConfigFile().getYamlDocument().getString("skull-cache.type"));
+    public static final Map<String, String> memoryCache = new HashMap<>();
 
     /**
      * Generation head type enum
@@ -39,9 +53,18 @@ public final class HeadManager {
      * @return Head itemStack
      */
     public static ItemStack convert(HeadType type, String value) {
-        String texture = getPlayerHeadTexture(value);
+        ItemStack head = XMaterial.PLAYER_HEAD.parseItem();
+        SkullMeta itemMeta = (SkullMeta) head.getItemMeta();
+
         if (type.equals(HeadType.PLAYER_HEAD)) {
-            return getSkullByTexture(texture);
+            assert itemMeta != null;
+            try {
+                head = getSkullByTexture("https://mc-heads.net/minecraft/profile/"+value);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return head;
         } else {
             return getSkullByTexture(value);
         }
@@ -68,19 +91,36 @@ public final class HeadManager {
 
     public static String getPlayerHeadTexture(String username) {
         if (getPlayerId(username).equals("none")) return "none";
-        String url = "https://api.minetools.eu/profile/" + getPlayerId(username);
+        //String url = "http://api.minetools.eu/profile/" + getPlayerId(username);
+        String url = "https://sessionserver.mojang.com/session/minecraft/profile/" + getPlayerId(username);
+
+        String fromCache = getFromCache(username);
+        if(fromCache != null) {
+            return fromCache;
+        }
+
         try {
             JSONParser jsonParser = new JSONParser();
             String userData = readUrl(url);
             Object parsedData = jsonParser.parse(userData);
 
+            /*
+            old method
+
             JSONObject jsonData = (JSONObject) parsedData;
             JSONObject decoded = (JSONObject) jsonData.get("raw");
             JSONArray textures = (JSONArray) decoded.get("properties");
+            JSONObject data = (JSONObject) textures.get(0);*/
+
+            JSONObject jsonData = (JSONObject) parsedData;
+            JSONArray textures = (JSONArray) jsonData.get("properties");
             JSONObject data = (JSONObject) textures.get(0);
 
-            return data.get("value").toString();
+            String value = data.get("value").toString();
+            saveToCache(username, value);
+            return value;
         } catch (Exception ex) {
+            ex.printStackTrace();
             return "none";
         }
     }
@@ -127,4 +167,35 @@ public final class HeadManager {
         }
         return new ItemStack(material, 1, (byte) data);
     }
+
+    public static String getFromCache(String username) {
+        switch (cacheType) {
+            case MEMORY:
+                return memoryCache.getOrDefault(username, null);
+            case CONFIG:
+                if(Main.getInstance().getHeadCache().getYamlDocument().getSection("values").contains(username)) {
+                    return Main.getInstance().getHeadCache().getYamlDocument().getString("values."+username);
+                }
+
+                return null;
+        }
+        return null;
+    }
+
+    public static void saveToCache(String username, String value) {
+        switch (cacheType) {
+            case MEMORY:
+                memoryCache.put(username, value);
+                return;
+            case CONFIG:
+                Main.getInstance().getHeadCache().getYamlDocument().set("values."+username, value);
+                try {
+                    Main.getInstance().getHeadCache().getYamlDocument().save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+        }
+    }
+
 }

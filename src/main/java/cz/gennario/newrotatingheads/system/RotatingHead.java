@@ -19,7 +19,6 @@ import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -300,7 +299,15 @@ public class RotatingHead {
                 Math.toRadians(section.getInt("z")));
     }
 
+    private List<String> spawningCache = new ArrayList<>();
+
     public void spawn(Player player) {
+        ArrayList<String> strings = new ArrayList<>(spawningCache);
+        if(strings.size() > 0) {
+            if (strings.contains(player.getName())) return;
+        }
+        spawningCache.add(player.getName());
+
         switch (headVisiblity) {
             case BLACKLIST:
                 if(headVisiblityList.contains(player.getName())) return;
@@ -332,6 +339,10 @@ public class RotatingHead {
         }
 
         if (!players.contains(player)) {
+            try {
+                players.add(player);
+                spawningCache.remove(player.getName());
+            }catch (Exception ignored) {}
             switch (headType) {
                 case STAND:
                     packetArmorStand.spawn(player);
@@ -343,7 +354,6 @@ public class RotatingHead {
             if(hologram != null) {
                 hologram.getPrivateHologramProvider().spawn(player);
             }
-            players.add(player);
         }
     }
 
@@ -404,7 +414,9 @@ public class RotatingHead {
             if(hologram != null) {
                 hologram.getPrivateHologramProvider().despawn(player);
             }
-            players.remove(player);
+            try {
+                players.remove(player);
+            }catch (Exception ignored) {}
         }
     }
 

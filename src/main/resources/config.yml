@@ -1,2 +1,10 @@
 config-version: 1.0
 language: en_GB
+
+# We are using skull cache to be safe from Mojang api request limit. We recommend to you our preset ;)
+# When player have new skin, you can use command /rh2 reloadcache [player]
+skull-cache:
+  type: CONFIG # can be replaced by 'MEMORY', but we recommend CONFIG, because you can hold skins for longer
+  config-settings:
+    name: 'skull_cache'
+    living-time: '3d' # cache will be reloaded automatically every 3 days

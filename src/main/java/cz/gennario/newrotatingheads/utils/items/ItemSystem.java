@@ -7,6 +7,7 @@ import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import me.alexmc.api.THeadsAPI;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -130,7 +131,7 @@ public class ItemSystem {
         if (section.getString("base64") != null) {
             itemStack = HeadManager.convert(HeadManager.HeadType.BASE64, section.getString("base64"));
         } else if (section.getString("player") != null) {
-            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, section.getString("player"));
+            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, PlaceholderAPI.setPlaceholders(null, section.getString("player")));
         } else {
             itemStack = new ItemStack(material, amount, data);
         }
@@ -200,7 +201,7 @@ public class ItemSystem {
         if (section.contains("base64")) {
             itemStack = HeadManager.convert(HeadManager.HeadType.BASE64, replacement.replace(player, section.getString("base64")));
         } else if (section.contains("player")) {
-            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, replacement.replace(player, section.getString("player")));
+            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, replacement.replace(player, PlaceholderAPI.setPlaceholders(player, section.getString("player"))));
         } else if (section.contains("transparent-head")) {
             Section section1 = section.getSection("transparent-head");
             String location = section1.getString("location");

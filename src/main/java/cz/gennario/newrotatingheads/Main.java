@@ -9,20 +9,20 @@ import cz.gennario.newrotatingheads.system.RotatingHead;
 import cz.gennario.newrotatingheads.system.animations.AnimationLoader;
 import cz.gennario.newrotatingheads.utils.Metrics;
 import cz.gennario.newrotatingheads.utils.PluginUpdater;
+import cz.gennario.newrotatingheads.utils.TimeUtils;
 import cz.gennario.newrotatingheads.utils.Utils;
 import cz.gennario.newrotatingheads.utils.config.Config;
 import cz.gennario.newrotatingheads.utils.debug.Logger;
+import cz.gennario.newrotatingheads.utils.items.HeadManager;
 import cz.gennario.newrotatingheads.utils.language.LanguageAPI;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 @Getter
@@ -42,6 +42,8 @@ public final class Main extends JavaPlugin {
     private Config configFile;
     private LanguageAPI languageAPI;
     private Command command;
+
+    private Config headCache;
 
     @Override
     public void onEnable() {
@@ -75,6 +77,31 @@ public final class Main extends JavaPlugin {
             e.printStackTrace();
         }
 
+        if (HeadManager.cacheType.equals(HeadManager.CacheType.CONFIG)) {
+            YamlDocument yamlDocument = Main.getInstance().getConfigFile().getYamlDocument();
+            headCache = new Config(Main.getInstance(), "", yamlDocument.getString("skull-cache.config-settings.name"), false);
+            try {
+                headCache.load();
+                YamlDocument yml = headCache.getYamlDocument();
+                if (yml.contains("values") && yml.contains("expire")) {
+                    if (new Date().after(TimeUtils.dateFromString(yml.getString("expire")))) {
+                        yml.getSection("values").clear();
+                        Calendar instance = Calendar.getInstance();
+                        instance.add(Calendar.SECOND, TimeUtils.decodeTime(yamlDocument.getString("skull-cache.config-settings.living-time")));
+                        yml.set("expire", TimeUtils.dateToString(instance.getTime()));
+                    }
+                } else {
+                    yml.createSection("values");
+                    Calendar instance = Calendar.getInstance();
+                    instance.add(Calendar.SECOND, TimeUtils.decodeTime(yamlDocument.getString("skull-cache.config-settings.living-time")));
+                    yml.set("expire", TimeUtils.dateToString(instance.getTime()));
+                }
+                yml.save();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         animationLoader = new AnimationLoader();
         animationLoader.loadDefaults();
 
@@ -98,6 +125,7 @@ public final class Main extends JavaPlugin {
         new HeadRunnable().runTaskTimerAsynchronously(this, 1, 1);
 
         pluginUpdater.sendLoadMessage();
+
     }
 
     @Override
@@ -137,10 +165,10 @@ public final class Main extends JavaPlugin {
     public void loadHead(String name) {
         RotatingHead rotatingHead = new RotatingHead(null, name, true);
         rotatingHead.loadFromConfig();
-        if(!rotatingHead.getLocation().isWorldLoaded()) {
-            log.log(Level.WARNING, "Rotating head "+name+" could not be loaded, because world where the head is supposed to spawn doesn't exist!");
-            log.log(Level.WARNING, "To solve this bug, go to the "+getDataFolder()+"/heads/"+name+".yml and change the location value...");
-        }else {
+        if (!rotatingHead.getLocation().isWorldLoaded()) {
+            log.log(Level.WARNING, "Rotating head " + name + " could not be loaded, because world where the head is supposed to spawn doesn't exist!");
+            log.log(Level.WARNING, "To solve this bug, go to the " + getDataFolder() + "/heads/" + name + ".yml and change the location value...");
+        } else {
             rotatingHead.updateHead();
 
             this.heads.put(name, rotatingHead);
