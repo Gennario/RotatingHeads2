@@ -19,6 +19,7 @@ import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -32,6 +33,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 @Getter
+@Setter
 public class RotatingHead {
 
     private int id;

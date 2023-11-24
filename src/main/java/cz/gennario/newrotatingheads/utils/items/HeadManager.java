@@ -59,7 +59,7 @@ public final class HeadManager {
         if (type.equals(HeadType.PLAYER_HEAD)) {
             assert itemMeta != null;
             try {
-                head = getSkullByTexture("https://mc-heads.net/minecraft/profile/"+value);
+                head = getSkullByTexture(getPlayerHeadTexture(value));
             }catch (Exception e) {
                 e.printStackTrace();
             }
@@ -92,7 +92,9 @@ public final class HeadManager {
     public static String getPlayerHeadTexture(String username) {
         if (getPlayerId(username).equals("none")) return "none";
         //String url = "http://api.minetools.eu/profile/" + getPlayerId(username);
-        String url = "https://sessionserver.mojang.com/session/minecraft/profile/" + getPlayerId(username);
+        String playerId = getPlayerId(username);
+        if(playerId.isEmpty()) playerId = getPlayerId("steve");
+        String url = "https://mc-heads.net/minecraft/profile/" + playerId;
 
         String fromCache = getFromCache(username);
         if(fromCache != null) {
@@ -143,14 +145,15 @@ public final class HeadManager {
 
     private static String getPlayerId(String playerName) {
         try {
-            String url = "https://api.minetools.eu/uuid/" + playerName;
+            String url = "https://playerdb.co/api/player/minecraft/" + playerName;
             JSONParser jsonParser = new JSONParser();
             String userData = readUrl(url);
             Object parsedData = jsonParser.parse(userData);
 
             JSONObject jsonData = (JSONObject) parsedData;
-
-            if (jsonData.get("id") != null) return jsonData.get("id").toString();
+            JSONObject jsonData2 = (JSONObject) jsonData.get("data");
+            JSONObject jsonData3 = (JSONObject) jsonData2.get("player");
+            if (jsonData3.get("raw_id") != null) return jsonData3.get("raw_id").toString();
             return "";
         } catch (Exception ex) {
             return "none";
