@@ -50,6 +50,7 @@ public class HeadRunnable extends BukkitRunnable {
                     }
                 }
                 value.pingAnimations();
+                value.pingConditions();
             }
         }
     }

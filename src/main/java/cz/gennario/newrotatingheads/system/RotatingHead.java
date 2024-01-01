@@ -80,7 +80,7 @@ public class RotatingHead {
     private EntityType entityType;
     private List<Player> players;
     private List<ConditionValue> conditions = new ArrayList<>();
-    private  Replacement conditionsReplacement;
+    private Replacement conditionsReplacement;
     private float yaw;
 
 
@@ -93,7 +93,7 @@ public class RotatingHead {
         this.headStatus = HeadStatus.ENABLED;
         this.headVisiblity = HeadVisiblity.PUBLIC;
         this.yaw = 0f;
-        this.conditionsReplacement = new Replacement((player, string) -> string);
+        this.conditionsReplacement = new Replacement(Utils::colorize);
 
         if(!withConfig) tempHead = true;
 
@@ -312,19 +312,29 @@ public class RotatingHead {
 
         switch (headVisiblity) {
             case BLACKLIST:
-                if(headVisiblityList.contains(player.getName())) return;
+                if(headVisiblityList.contains(player.getName())) {
+                    spawningCache.remove(player.getName());
+                    return;
+                }
             case WHITELIST:
-                if(!headVisiblityList.contains(player.getName())) return;
+                if(!headVisiblityList.contains(player.getName())) {
+                    spawningCache.remove(player.getName());
+                    return;
+                }
         }
 
         if (!conditions.isEmpty()) {
             boolean cango = true;
             for (ConditionValue condition : conditions) {
-                if(!Main.getInstance().getConditionsAPI().check(player, condition, conditionsReplacement)) {
+                boolean check = Main.getInstance().getConditionsAPI().check(player, condition, conditionsReplacement);
+                if(!check) {
                     cango = false;
                 }
             }
-            if(!cango) return;
+            if(!cango) {
+                spawningCache.remove(player.getName());
+                return;
+            }
         }
 
 
@@ -419,6 +429,23 @@ public class RotatingHead {
             try {
                 players.remove(player);
             }catch (Exception ignored) {}
+        }
+    }
+
+    public void pingConditions() {
+        for (Player player : new ArrayList<>(players)) {
+            if (!conditions.isEmpty()) {
+                boolean cango = true;
+                for (ConditionValue condition : conditions) {
+                    if(!Main.getInstance().getConditionsAPI().check(player, condition, conditionsReplacement)) {
+                        cango = false;
+                    }
+                }
+                if(!cango) {
+                    despawn(player);
+                    return;
+                }
+            }
         }
     }
 
