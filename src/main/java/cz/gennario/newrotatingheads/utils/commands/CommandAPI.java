@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class CommandAPI {
@@ -298,7 +299,7 @@ public class CommandAPI {
                     }
                 }
 
-                return list;
+                return list.stream().filter(completion -> completion.startsWith(args[args.length-1])).collect(Collectors.toList());
             });
             Field field = SimplePluginManager.class.getDeclaredField("commandMap");
             field.setAccessible(true);
