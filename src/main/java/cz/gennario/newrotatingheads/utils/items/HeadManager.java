@@ -1,26 +1,28 @@
 package cz.gennario.newrotatingheads.utils.items;
 
 import com.cryptomorin.xseries.XMaterial;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import cz.gennario.newrotatingheads.Main;
-import cz.gennario.newrotatingheads.utils.TimeUtils;
-import cz.gennario.newrotatingheads.utils.config.Config;
-import dev.dejvokep.boostedyaml.YamlDocument;
+import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * HeadSystem [1.1]
@@ -70,59 +72,60 @@ public final class HeadManager {
         }
     }
 
-    private static ItemStack getSkullByTexture(String url) {
+    private static ItemStack getSkullByTexture(String base64) {
         ItemStack head = getAllVersionStack("SKULL_ITEM", "PLAYER_HEAD", 3);
-        if (url.isEmpty() || url.equals("none")) return head;
+        if (base64.isEmpty() || base64.equals("none")) return head;
 
         SkullMeta meta = (SkullMeta) head.getItemMeta();
-        GameProfile profile = new GameProfile(UUID.randomUUID(), "");
-        profile.getProperties().put("textures", new Property("textures", url));
-        Field profileField = null;
-        try {
-            profileField = meta.getClass().getDeclaredField("profile");
-            profileField.setAccessible(true);
-            profileField.set(meta, profile);
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-            e.printStackTrace();
+
+        // If the Minecraft version is 1.18.1 or higher, use the new API methods.
+        int version = Integer.parseInt(Bukkit.getServer().getClass().getName().split("\\.")[3].split("_")[1]);
+        if (version >= 18) {
+            String skinJson = new String(Base64.getDecoder().decode(base64));
+            JsonObject skinObject = new JsonParser().parse(skinJson).getAsJsonObject();
+            String url = skinObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
+
+            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+            PlayerTextures textures = profile.getTextures();
+            URL urlObject;
+            try {
+                urlObject = new URL(url);
+            } catch (MalformedURLException exception) {
+                throw new RuntimeException("Invalid URL", exception);
+            }
+            textures.setSkin(urlObject);
+            profile.setTextures(textures);
+            meta.setOwnerProfile(profile);
+
+        } else {
+            try {
+                GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+                profile.getProperties().put("textures", new Property("textures", base64));
+                Field profileField;
+                profileField = meta.getClass().getDeclaredField("profile");
+                profileField.setAccessible(true);
+                profileField.set(meta, profile);
+
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+               Bukkit.getLogger().log(Level.SEVERE, "Unexpected error!");
+            }
         }
         head.setItemMeta(meta);
         return head;
     }
 
     public static String getPlayerHeadTexture(String username) {
-        if (getPlayerId(username).equals("none")) return "none";
-        //String url = "http://api.minetools.eu/profile/" + getPlayerId(username);
-        String playerId = getPlayerId(username);
-        if(playerId.isEmpty()) playerId = getPlayerId("steve");
-        String url = "https://mc-heads.net/minecraft/profile/" + playerId;
-
-        String fromCache = getFromCache(username);
-        if(fromCache != null) {
-            return fromCache;
-        }
-
         try {
-            JSONParser jsonParser = new JSONParser();
-            String userData = readUrl(url);
-            Object parsedData = jsonParser.parse(userData);
+            String UUIDJson = IOUtils.toString(new URL("https://api.mojang.com/users/profiles/minecraft/" + username), StandardCharsets.UTF_8);
+            JsonObject uuidObject = new JsonParser().parse(UUIDJson).getAsJsonObject();
+            String dashlessUuid = uuidObject.get("id").getAsString();
 
-            /*
-            old method
+            String profileJson = IOUtils.toString(new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + dashlessUuid), StandardCharsets.UTF_8);
+            JsonObject profileObject = new JsonParser().parse(profileJson).getAsJsonObject();
+            return profileObject.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
 
-            JSONObject jsonData = (JSONObject) parsedData;
-            JSONObject decoded = (JSONObject) jsonData.get("raw");
-            JSONArray textures = (JSONArray) decoded.get("properties");
-            JSONObject data = (JSONObject) textures.get(0);*/
-
-            JSONObject jsonData = (JSONObject) parsedData;
-            JSONArray textures = (JSONArray) jsonData.get("properties");
-            JSONObject data = (JSONObject) textures.get(0);
-
-            String value = data.get("value").toString();
-            saveToCache(username, value);
-            return value;
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            Bukkit.getLogger().log(java.util.logging.Level.WARNING, "The player name " + username + " does not exist!");
             return "none";
         }
     }
@@ -139,24 +142,6 @@ public final class HeadManager {
             return buffer.toString();
         } finally {
             if (reader != null) reader.close();
-        }
-    }
-
-
-    private static String getPlayerId(String playerName) {
-        try {
-            String url = "https://playerdb.co/api/player/minecraft/" + playerName;
-            JSONParser jsonParser = new JSONParser();
-            String userData = readUrl(url);
-            Object parsedData = jsonParser.parse(userData);
-
-            JSONObject jsonData = (JSONObject) parsedData;
-            JSONObject jsonData2 = (JSONObject) jsonData.get("data");
-            JSONObject jsonData3 = (JSONObject) jsonData2.get("player");
-            if (jsonData3.get("raw_id") != null) return jsonData3.get("raw_id").toString();
-            return "";
-        } catch (Exception ex) {
-            return "none";
         }
     }
 
