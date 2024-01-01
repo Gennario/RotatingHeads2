@@ -250,6 +250,8 @@ public class Command {
                             location = location.getBlock().getLocation();
                             location.add(0.5, 0, 0.5);
                         }
+                        heads.getYamlDocument().set("settings.invisible", true);
+                        heads.getYamlDocument().set("settings.arms", false);
 
                         heads.getYamlDocument().save();
                         heads.getYamlDocument().reload();
