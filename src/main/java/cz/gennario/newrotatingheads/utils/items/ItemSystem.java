@@ -2,6 +2,7 @@ package cz.gennario.newrotatingheads.utils.items;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
+import cz.gennario.newrotatingheads.Main;
 import cz.gennario.newrotatingheads.utils.Utils;
 import cz.gennario.newrotatingheads.utils.replacement.Replacement;
 import dev.dejvokep.boostedyaml.YamlDocument;
@@ -131,7 +132,13 @@ public class ItemSystem {
         if (section.getString("base64") != null) {
             itemStack = HeadManager.convert(HeadManager.HeadType.BASE64, section.getString("base64"));
         } else if (section.getString("player") != null) {
-            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, PlaceholderAPI.setPlaceholders(null, section.getString("player")));
+            String toReplace;
+            if (Main.getInstance().getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                toReplace = PlaceholderAPI.setPlaceholders(null, section.getString("player"));
+            } else {
+                toReplace = section.getString("player");
+            }
+            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, toReplace);
         } else {
             itemStack = new ItemStack(material, amount, data);
         }
@@ -201,7 +208,13 @@ public class ItemSystem {
         if (section.contains("base64")) {
             itemStack = HeadManager.convert(HeadManager.HeadType.BASE64, replacement.replace(player, section.getString("base64")));
         } else if (section.contains("player")) {
-            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, replacement.replace(player, PlaceholderAPI.setPlaceholders(player, section.getString("player"))));
+            String toReplace;
+            if (Main.getInstance().getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                toReplace = PlaceholderAPI.setPlaceholders(player, section.getString("player"));
+            } else {
+                toReplace = section.getString("player");
+            }
+            itemStack = HeadManager.convert(HeadManager.HeadType.PLAYER_HEAD, replacement.replace(player, toReplace));
         } else if (section.contains("transparent-head")) {
             Section section1 = section.getSection("transparent-head");
             String location = section1.getString("location");
