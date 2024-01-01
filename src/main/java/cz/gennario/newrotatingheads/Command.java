@@ -370,7 +370,7 @@ public class Command {
 
                     switch (plugin) {
                         case "RH-REBORN":
-                            File file = new File(Main.getInstance().getDataFolder().toString().replace("/RotatingHeads2", "") + "/RotatingHeads");
+                            File file = new File(Main.getInstance().getDataFolder().getAbsolutePath().replace("RotatingHeads2", "RotatingHeads"));
                             if (file.exists()) {
                                 commandSender.sendMessage(language.getMessage("messages.convert.start",
                                         null,
@@ -401,7 +401,7 @@ public class Command {
                             }
                             break;
                         case "RH-PRO":
-                            File file2 = new File(Main.getInstance().getDataFolder().toString().replace("/RotatingHeads2", "") + "/RotatingHeadsPRO");
+                            File file2 = new File(Main.getInstance().getDataFolder().getAbsolutePath().replace("RotatingHeads2", "RotatingHeadsPRO"));
                             if (file2.exists()) {
                                 commandSender.sendMessage(language.getMessage("messages.convert.start",
                                         null,
