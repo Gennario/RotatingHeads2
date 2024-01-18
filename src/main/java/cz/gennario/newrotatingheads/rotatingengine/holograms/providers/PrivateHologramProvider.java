@@ -11,19 +11,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 public class PrivateHologramProvider extends HologramExtender {
 
     private Map<Integer, PacketArmorStand> lines;
-    private List<Player> players;
+    private CopyOnWriteArrayList<Player> players;
     private double space;
     private boolean attachBottom;
 
     public PrivateHologramProvider(String name, RotatingHead rotatingHead) {
         super(name, rotatingHead);
         lines = new HashMap<>();
-        players = new ArrayList<>();
+        players = new CopyOnWriteArrayList<>();
     }
 
     @Override
