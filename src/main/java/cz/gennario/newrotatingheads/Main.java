@@ -122,7 +122,7 @@ public final class Main extends JavaPlugin {
 
 
         new HeadInteraction().register();
-        new HeadRunnable().runTaskTimer(this, 1, 1);
+        new HeadRunnable().runTaskTimerAsynchronously(this, 1, 1);
 
         pluginUpdater.sendLoadMessage();
 

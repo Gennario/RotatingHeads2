@@ -90,8 +90,9 @@ public class PrivateHologramProvider extends HologramExtender {
 
     @Override
     public void spawn(Player player) {
-        for (PacketArmorStand packetArmorStand : new ArrayList<>(lines.values())) {
-            if(!packetArmorStand.getName().equals("")) {
+        Map<Integer, PacketArmorStand> tempLines = new HashMap<>(lines);
+        for (PacketArmorStand packetArmorStand : new ArrayList<>(tempLines.values())) {
+            if(!packetArmorStand.getName().isEmpty()) {
                 packetArmorStand.spawn(player);
             }
         }
@@ -101,7 +102,8 @@ public class PrivateHologramProvider extends HologramExtender {
 
     @Override
     public void despawn(Player player) {
-        for (PacketArmorStand packetArmorStand : new ArrayList<>(lines.values())) {
+        Map<Integer, PacketArmorStand> tempLines = new HashMap<>(lines);
+        for (PacketArmorStand packetArmorStand : new ArrayList<>(tempLines.values())) {
             packetArmorStand.delete(player);
         }
 
@@ -110,7 +112,8 @@ public class PrivateHologramProvider extends HologramExtender {
 
     @Override
     public void refreshLines(Player player) {
-        for (PacketArmorStand packetArmorStand : new ArrayList<>(lines.values())) {
+        Map<Integer, PacketArmorStand> tempLines = new HashMap<>(lines);
+        for (PacketArmorStand packetArmorStand : new ArrayList<>(tempLines.values())) {
             packetArmorStand.updateName(player);
         }
     }
