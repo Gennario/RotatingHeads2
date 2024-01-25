@@ -30,6 +30,7 @@ import org.bukkit.util.EulerAngle;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
 @Getter
@@ -78,7 +79,7 @@ public class RotatingHead {
     private PacketArmorStand packetArmorStand;
     private PacketEntity packetEntity;
     private EntityType entityType;
-    private List<Player> players;
+    private CopyOnWriteArrayList<Player> players;
     private List<ConditionValue> conditions = new ArrayList<>();
     private Replacement conditionsReplacement;
     private float yaw;
@@ -130,7 +131,7 @@ public class RotatingHead {
         this.packetArmorStand.setLocation(lastlocation);
         this.packetEntity.setLocation(lastlocation);
         this.animations = new ArrayList<>();
-        this.players = new ArrayList<>();
+        this.players = new CopyOnWriteArrayList<>();
 
         this.arms = false;
         this.invisible = true;
@@ -301,11 +302,11 @@ public class RotatingHead {
                 Math.toRadians(section.getInt("z")));
     }
 
-    private List<String> spawningCache = new ArrayList<>();
+    CopyOnWriteArrayList<String> spawningCache = new CopyOnWriteArrayList<>();
 
     public void spawn(Player player) {
         ArrayList<String> strings = new ArrayList<>(spawningCache);
-        if(strings.size() > 0) {
+        if(!strings.isEmpty()) {
             if (strings.contains(player.getName())) return;
         }
         spawningCache.add(player.getName());
@@ -573,7 +574,7 @@ public class RotatingHead {
         return this;
     }
 
-    public RotatingHead setPlayers(List<Player> players) {
+    public RotatingHead setPlayers(CopyOnWriteArrayList<Player> players) {
         this.players = players;
         return this;
     }

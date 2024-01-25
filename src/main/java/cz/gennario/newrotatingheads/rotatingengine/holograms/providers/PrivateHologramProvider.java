@@ -11,19 +11,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 public class PrivateHologramProvider extends HologramExtender {
 
     private Map<Integer, PacketArmorStand> lines;
-    private List<Player> players;
+    private CopyOnWriteArrayList<Player> players;
     private double space;
     private boolean attachBottom;
 
     public PrivateHologramProvider(String name, RotatingHead rotatingHead) {
         super(name, rotatingHead);
         lines = new HashMap<>();
-        players = new ArrayList<>();
+        players = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -90,8 +91,9 @@ public class PrivateHologramProvider extends HologramExtender {
 
     @Override
     public void spawn(Player player) {
-        for (PacketArmorStand packetArmorStand : new ArrayList<>(lines.values())) {
-            if(!packetArmorStand.getName().equals("")) {
+        Map<Integer, PacketArmorStand> tempLines = new HashMap<>(lines);
+        for (PacketArmorStand packetArmorStand : new ArrayList<>(tempLines.values())) {
+            if(!packetArmorStand.getName().isEmpty()) {
                 packetArmorStand.spawn(player);
             }
         }
@@ -101,7 +103,8 @@ public class PrivateHologramProvider extends HologramExtender {
 
     @Override
     public void despawn(Player player) {
-        for (PacketArmorStand packetArmorStand : new ArrayList<>(lines.values())) {
+        Map<Integer, PacketArmorStand> tempLines = new HashMap<>(lines);
+        for (PacketArmorStand packetArmorStand : new ArrayList<>(tempLines.values())) {
             packetArmorStand.delete(player);
         }
 
@@ -110,7 +113,8 @@ public class PrivateHologramProvider extends HologramExtender {
 
     @Override
     public void refreshLines(Player player) {
-        for (PacketArmorStand packetArmorStand : new ArrayList<>(lines.values())) {
+        Map<Integer, PacketArmorStand> tempLines = new HashMap<>(lines);
+        for (PacketArmorStand packetArmorStand : new ArrayList<>(tempLines.values())) {
             packetArmorStand.updateName(player);
         }
     }
